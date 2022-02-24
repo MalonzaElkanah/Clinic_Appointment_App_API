@@ -66,4 +66,27 @@ class MyUserSerializer(serializers.ModelSerializer):
 		instance.save()
 		return instance
 
-	
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField()
+    new_password = serializers.CharField()
+
+
+class ForgotPasswordSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+
+    def validate_email(self, value):
+        if MyUser.objects.filter(username=value).exists():
+            return value
+        raise serializers.ValidationError("user does not exist.")
+
+
+class ResetPasswordserializer(serializers.Serializer):
+    reset_code = serializers.IntegerField(required=True)
+    new_password = serializers.CharField(required=True)
+
+    def validate_reset_code(self, value):
+        if not MyUser.objects.filter(reset_code=value).exists():
+            raise serializers.ValidationError("Reset code Invalid or Expired")
+        return value
+
