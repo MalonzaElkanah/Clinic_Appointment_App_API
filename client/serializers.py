@@ -6,36 +6,6 @@ from rest_framework.response import Response
 from client.models import MyUser
 
 
-class PermissionSerializer(serializers.ModelSerializer):
-
-	class Meta:
-		model = Permission
-		fields = ["id", "name", "codename"]
-
-
-class GroupSerializer(serializers.ModelSerializer):
-	permissions = PermissionSerializer(many=True)
-
-	class Meta:
-		model = Group
-		fields = '__all__'
-	
-
-class ClientSerializer(serializers.ModelSerializer):
-	role = GroupSerializer(many=False, read_only=True)
-
-	class Meta:
-		model = MyUser
-		exclude = ("reset_code", "confirm_code", "changed_password", "user_permissions", "groups", 
-			"is_staff", "last_activity", "old_password", "is_superuser", "is_active", "last_login", 
-			"verified", "password",)
-		
-		extra_kwargs = {
-			"username": {"required": False},
-			"email": {"required": True}
-		}
-
-
 class MyUserSerializer(serializers.ModelSerializer):
 
 	class Meta:
@@ -46,7 +16,10 @@ class MyUserSerializer(serializers.ModelSerializer):
 		extra_kwargs = {
 			"username": {"required": False},
 			"password": {'write_only': True, 'required': True},
-			"email": {"required": True}
+			"email": {"required": True},
+			"last_login": {'read_only': True, 'required': False},
+			"verified": {'read_only': True, 'required': False},
+			"date_joined": {'read_only': True, 'required': False},
 		}
 
 	def create(self, validated_data):
@@ -65,6 +38,23 @@ class MyUserSerializer(serializers.ModelSerializer):
 				setattr(instance, attr, value)
 		instance.save()
 		return instance
+	
+
+class ClientSerializer(serializers.ModelSerializer):
+	role = serializers.CharField(read_only=True) 
+
+	class Meta:
+		model = MyUser
+		exclude = ("reset_code", "confirm_code", "changed_password", "user_permissions", "groups", 
+			"is_staff", "last_activity", "old_password", "is_superuser", "is_active", "last_login", 
+			"verified", "password",)
+		
+		extra_kwargs = {
+			"username": {"required": False},
+			"email": {"required": True}
+		}
+		depth = 1
+
 
 
 class ChangePasswordSerializer(serializers.Serializer):
@@ -90,3 +80,17 @@ class ResetPasswordserializer(serializers.Serializer):
             raise serializers.ValidationError("Reset code Invalid or Expired")
         return value
 
+
+class PermissionSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Permission
+		fields = ["id", "name", "codename"]
+
+
+class GroupSerializer(serializers.ModelSerializer):
+	permissions = PermissionSerializer(many=True)
+
+	class Meta:
+		model = Group
+		fields = '__all__'

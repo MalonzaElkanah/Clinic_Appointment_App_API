@@ -6,6 +6,7 @@ from drf_autodocs.views import TreeView
 urlpatterns = [
     path('apiauth/', include('rest_framework.urls')),
     path('users/', include('client.urls')),
+    path('patients/', include('clinic.patient.urls')),
 
     path('', TreeView.as_view(), name='api-tree'),
 ]
