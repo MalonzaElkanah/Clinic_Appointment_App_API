@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group
+from django.db.models import Q
 
 from rest_framework import serializers
 
@@ -67,23 +68,36 @@ class PatientSerializer(serializers.ModelSerializer):
 		password = user_data.pop('password')
 		if None in [username, email]: 
 			raise serializers.ValidationError("Email and Username fields are required.")
-		user = self.user_update_or_create(user_data)
+		user = self.user_update_or_create(user_data, instance=instance.user)
+		instance.user = user
 		instance.blood_group = validated_data.get('blood_group', instance.blood_group)
 		instance.save()
 		return instance
 
-	def user_update_or_create(self, user_data):
+	def user_update_or_create(self, user_data, instance=None):
 		role_data = user_data.pop('role')
-		group = Group.objects.filter(id=int(role_data))
-		if group.count()>0:
-			group = group[0]
-		else:
-			group = None
-		users1 = MyUser.objects.filter(username = user_data.get('username'))
-		users2 = MyUser.objects.filter(email = user_data.get('email'))
+		groups = Group.objects.filter(id=int(role_data))
+		group = None
+		if groups.count()>0:
+			group = groups[0]
+
 		user = None
-		if users1.count() > 0 or users2.count() > 0: 
-			user = MyUser.objects.update(role=group, **user_data)
+		email = user_data.pop('email')
+		username = user_data.pop('username')
+		if instance is not None:
+			user = MyUser.objects.filter(id=instance.id)
+			user.update(role=group, **user_data)
+			user = MyUser.objects.get(id=instance.id)
 		else:
-			user = MyUser.objects.create(role=group, **user_data)
+			users = MyUser.objects.filter(username=username)
+			if users.count() > 0:
+				raise serializers.ValidationError("Username already Exists.")
+
+			users = MyUser.objects.filter(email=email)
+			if users.count() > 0:
+				raise serializers.ValidationError("Email already Exists.")
+
+			defaults={"email": email, "username": username}
+			user, created = users.get_or_create(**user_data, defaults=defaults)
+			
 		return user
