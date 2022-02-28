@@ -7,6 +7,9 @@ urlpatterns = [
     path('apiauth/', include('rest_framework.urls')),
     path('users/', include('client.urls')),
     path('patients/', include('clinic.patient.urls')),
+    path('doctors/', include('clinic.doctor.urls')),
+    path('doctors/', include('clinic.doctor.urls')),
+    path('clinics/', include('clinic.urls')),
 
     path('', TreeView.as_view(), name='api-tree'),
 ]

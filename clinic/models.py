@@ -2,6 +2,7 @@ from django.db import models
 from django.utils import timezone
 
 from client.models import MyUser
+from administrator.models import Speciality
 
 import datetime as dt
 from imagekit.models import ImageSpecField
@@ -23,13 +24,6 @@ class Patient(models.Model):
 	
 	def __str__(self):
 		return "{} {}".format(self.user.first_name, self.user.last_name).title()  
-
-
-class Speciality(models.Model):
-	name = models.CharField('Name', max_length=100)	
-	
-	def __str__(self):
-		return self.name
 
 
 class Doctor(models.Model):

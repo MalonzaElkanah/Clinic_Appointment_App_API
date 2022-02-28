@@ -24,7 +24,7 @@ class ListCreateUser(generics.ListCreateAPIView):
 class RetrieveUpdateDestroyUser(generics.RetrieveUpdateDestroyAPIView):
 	queryset = MyUser.objects.all()
 	serializer_class = MyUserSerializer
-	permission_classes = [IsRoleAdmin]
+	permission_classes = []
 
 
 class RetrieveUpdateClient(generics.RetrieveUpdateAPIView):

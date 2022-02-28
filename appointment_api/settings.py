@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'imagekit',
     'client.apps.ClientConfig',
     'clinic.apps.ClinicConfig',
+    'administrator.apps.AdministratorConfig',
 ]
 
 MIDDLEWARE = [
