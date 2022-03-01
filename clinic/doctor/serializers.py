@@ -5,7 +5,7 @@ from rest_framework import serializers
 
 from client.models import MyUser
 from clinic.models import Doctor, Education, Experience, Award, Membership, Registration, \
-DoctorSchedule, TimeSlot, SocialMedia
+DoctorSchedule, TimeSlot, SocialMedia, AppoinmentReview, DoctorSchedule, TimeSlot
 from client.serializers import MyUserSerializer
 from mylib.common import MyCustomException
 
@@ -163,13 +163,6 @@ class RegistrationSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
-class DoctorScheduleSerializer(serializers.ModelSerializer):
-
-	class Meta:
-		model = DoctorSchedule
-		fields = '__all__'
-
-
 class TimeSlotSerializer(serializers.ModelSerializer):
 
 	class Meta:
@@ -177,9 +170,24 @@ class TimeSlotSerializer(serializers.ModelSerializer):
 		fields = '__all__'
 
 
+class DoctorScheduleSerializer(serializers.ModelSerializer):
+	time_slots = TimeSlotSerializer(read_only=True)
+
+	class Meta:
+		model = DoctorSchedule
+		fields = '__all__'
+
+
 class SocialMediaSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = SocialMedia
+		fields = '__all__'
+
+
+class ReviewSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = AppoinmentReview
 		fields = '__all__'
 

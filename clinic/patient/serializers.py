@@ -4,7 +4,8 @@ from django.db.models import Q
 from rest_framework import serializers
 
 from client.models import MyUser
-from clinic.models import Patient
+from clinic.models import Patient, Prescription, MedicalRecord, FavouriteDoctor, Appointment, Invoice, \
+Bill 
 from client.serializers import MyUserSerializer
 from mylib.common import MyCustomException
 
@@ -101,3 +102,46 @@ class PatientSerializer(serializers.ModelSerializer):
 			user, created = users.get_or_create(**user_data, defaults=defaults)
 			
 		return user
+
+
+class PrescriptionSerializer(serializers.ModelSerializer): 
+
+	class Meta:
+		model = Prescription
+		fields = "__all__"
+
+
+class MedicalRecordSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = MedicalRecord
+		fields = "__all__"
+
+
+class FavouriteDoctorSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = FavouriteDoctor
+		fields = "__all__"
+
+
+class AppointmentSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Appointment
+		fields = "__all__"
+
+
+class BillSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Bill
+		fields = "__all__"
+
+
+class InvoiceSerializer(serializers.ModelSerializer):
+	bills = BillSerializer(read_only=True)
+
+	class Meta:
+		model = Invoice
+		fields = "__all__"

@@ -104,21 +104,27 @@ class Registration(models.Model):
 
 
 class DoctorSchedule(models.Model):
+	DAY = (
+		('Sunday', 'Sunday'), ('Monday', 'Monday'), 
+		('Tuesday','Tuesday'), ('Wednesday','Wednesday'),
+		('Thursday','Thursday'), ('Friday','Friday'),
+		('Sartuday','Sartuday'), ('Holiday', 'Holiday'))
 	doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-	day = models.CharField('Day', max_length=10)
+	day = models.CharField('Day', max_length=10, choices=DAY)
+	time_slot = models.ManyToManyField('TimeSlot')
 
 	def __str__(self):
 		return "{}".format(self.day).title() 
 
 
 class TimeSlot(models.Model):
-	schedule = models.ForeignKey(DoctorSchedule, on_delete=models.CASCADE)
 	start_time = models.TimeField('Start Time') 
 	end_time = models.TimeField('End Time')
 	number_of_appointments = models.IntegerField('Number Of Appointments', default=1)
+	doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
 
 	def __str__(self):
-		return "{}: {} - {}".format(self.schedule.day, self.start_time, self.end_time).title() 
+		return "{} - {}".format(self.start_time, self.end_time).title() 
 
 
 class SocialMedia(models.Model):

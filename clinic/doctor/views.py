@@ -4,10 +4,11 @@ from rest_framework.permissions import IsAuthenticated
 
 from client.permissions import IsAuthenticatedOrPOSTOnly, IsOwnerOrReadOnly
 from clinic.models import Doctor, Education, Experience, Award, Membership, Registration, \
-DoctorSchedule, TimeSlot, SocialMedia
+DoctorSchedule, TimeSlot, SocialMedia, Appointment, AppoinmentReview, TimeSlot, DoctorSchedule
 from clinic.doctor.serializers import DoctorSerializer, EducationSerializer, ExperienceSerializer, \
 AwardSerializer, MembershipSerializer, RegistrationSerializer, DoctorScheduleSerializer, \
-TimeSlotSerializer, SocialMediaSerializer
+TimeSlotSerializer, SocialMediaSerializer, ReviewSerializer
+from clinic.patient.serializers import AppointmentSerializer
 
 from mylib.common import MyCustomException
 
@@ -168,4 +169,34 @@ class SocialMediaViewSet(viewsets.ModelViewSet):
 		if doctor.count() < 1:
 			raise MyCustomException("Error: You are not a Doctor")
 		serializer.save(doctor=doctor[0])
+
+
+class AppointmentViewSet(viewsets.ModelViewSet):
+	queryset = Appointment.objects.all()
+	serializer_class = AppointmentSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+		if doctors.count() < 1:
+			raise MyCustomException("Error: Doctor not Found")
+		return Appointment.objects.filter(doctor=doctors[0].id)
+
+	def perform_create(self, serializer):
+		doctor = Doctor.objects.filter(user=self.request.user.id)
+		if doctor.count() < 1:
+			raise MyCustomException("Error: You are not a Doctor")
+		serializer.save(doctor=doctor[0])
+
+
+class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
+	queryset = AppoinmentReview.objects.all()
+	serializer_class = ReviewSerializer
+	permission_classes = [IsAuthenticated]
+
+	def get_queryset(self):
+		doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+		if doctors.count() < 1:
+			raise MyCustomException("Error: Doctor not Found")
+		return AppoinmentReview.objects.filter(appointment__doctor=doctors[0].id)
 
