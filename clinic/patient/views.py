@@ -2,7 +2,9 @@ from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from client.permissions import IsAuthenticatedOrPOSTOnly
+from client.permissions import IsAuthenticatedOrPOSTOnly, IsOwnerOrReadOnly
+from clinic.patient.permissions import IsOwnerDoctorOrReadOnly, IsDoctorOrReadOnly, IsOwnerOrDoctor, \
+IsOwnerDoctorOrIsOwnerPatient, IsOwnerPatient, IsOwnerOrDoctorReadOnly, DoctorReadOnly
 from clinic.models import Patient, Prescription, MedicalRecord, FavouriteDoctor, Appointment, Invoice
 from clinic.patient.serializers import PatientSerializer, PrescriptionSerializer, \
 MedicalRecordSerializer, FavouriteDoctorSerializer, AppointmentSerializer, InvoiceSerializer 
@@ -13,19 +15,19 @@ MedicalRecordSerializer, FavouriteDoctorSerializer, AppointmentSerializer, Invoi
 class ListCreatePatient(generics.ListCreateAPIView):
 	queryset = Patient.objects.all()
 	serializer_class = PatientSerializer
-	permission_classes = [IsAuthenticatedOrPOSTOnly]
+	permission_classes = [IsAuthenticatedOrPOSTOnly|DoctorReadOnly]
 
 
 class RetrieveUpdateDestroyPatient(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Patient.objects.all()
 	serializer_class = PatientSerializer
-	# permission_classes = [IsRoleAdmin]
+	permission_classes = [IsOwnerOrDoctorReadOnly]
 
 
 class PrescriptionViewSet(viewsets.ModelViewSet):
 	queryset = Prescription.objects.all()
 	serializer_class = PrescriptionSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly, IsDoctorOrReadOnly, IsOwnerOrDoctor]
 
 	def get_queryset(self):
 		patients = Patient.objects.filter(id=self.kwargs['patient_pk'])
@@ -43,7 +45,7 @@ class PrescriptionViewSet(viewsets.ModelViewSet):
 class MedicalRecordViewSet(viewsets.ModelViewSet):
 	queryset = MedicalRecord.objects.all()
 	serializer_class = MedicalRecordSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly, IsDoctorOrReadOnly, IsOwnerOrDoctor]
 
 	def get_queryset(self):
 		patients = Patient.objects.filter(id=self.kwargs['patient_pk'])
@@ -61,7 +63,7 @@ class MedicalRecordViewSet(viewsets.ModelViewSet):
 class FavouriteDoctorViewSet(viewsets.ModelViewSet):
 	queryset = FavouriteDoctor.objects.all()
 	serializer_class = FavouriteDoctorSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerPatient]
 
 	def get_queryset(self):
 		patients = Patient.objects.filter(id=self.kwargs['patient_pk'])
@@ -79,7 +81,7 @@ class FavouriteDoctorViewSet(viewsets.ModelViewSet):
 class AppointmentViewSet(viewsets.ModelViewSet):
 	queryset = Appointment.objects.all()
 	serializer_class = AppointmentSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrIsOwnerPatient]
 
 	def get_queryset(self):
 		patients = Patient.objects.filter(id=self.kwargs['patient_pk'])
@@ -97,7 +99,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
 	queryset = Invoice.objects.all()
 	serializer_class = InvoiceSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrIsOwnerPatient]
 
 	def get_queryset(self):
 		patients = Patient.objects.filter(id=self.kwargs['patient_pk'])

@@ -114,7 +114,7 @@ class IsRolePatient(BasePermission):
     """
     The request is authenticated as a user and has a Patient Role.
     """
-    message = "Doctor Only Access"
+    message = "Patient Only Access"
 
     def has_permission(self, request, view):
         if not request.user.is_authenticated:
