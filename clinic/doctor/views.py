@@ -2,7 +2,9 @@ from rest_framework import generics
 from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
-from client.permissions import IsAuthenticatedOrPOSTOnly, IsOwnerOrReadOnly
+from client.permissions import IsOwnerOrReadOnly
+from clinic.doctor.permissions import ReadOnlyIfAuthenticatedOrPOSTOnly, IsOwnerDoctorOrReadOnly
+from clinic.patient.permissions import IsDoctorOrReadOnly
 from clinic.models import Doctor, Education, Experience, Award, Membership, Registration, \
 DoctorSchedule, TimeSlot, SocialMedia, Appointment, AppoinmentReview, TimeSlot, DoctorSchedule
 from clinic.doctor.serializers import DoctorSerializer, EducationSerializer, ExperienceSerializer, \
@@ -18,19 +20,19 @@ from mylib.common import MyCustomException
 class ListCreateDoctor(generics.ListCreateAPIView):
 	queryset = Doctor.objects.all()
 	serializer_class = DoctorSerializer
-	permission_classes = [IsAuthenticatedOrPOSTOnly, IsOwnerOrReadOnly]
+	permission_classes = [ReadOnlyIfAuthenticatedOrPOSTOnly]
 
 
 class RetrieveUpdateDestroyDoctor(generics.RetrieveUpdateDestroyAPIView):
 	queryset = Doctor.objects.all()
 	serializer_class = DoctorSerializer
-	permission_classes = [IsOwnerOrReadOnly]
+	permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
 
 class EducationViewSet(viewsets.ModelViewSet):
 	queryset = Education.objects.all()
 	serializer_class = EducationSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
 	def get_queryset(self):
 		doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
@@ -48,7 +50,7 @@ class EducationViewSet(viewsets.ModelViewSet):
 class ExperienceViewSet(viewsets.ModelViewSet):
 	queryset = Experience.objects.all()
 	serializer_class = ExperienceSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
 	def get_queryset(self):
 		doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
@@ -66,7 +68,7 @@ class ExperienceViewSet(viewsets.ModelViewSet):
 class AwardViewSet(viewsets.ModelViewSet):
 	queryset = Award.objects.all()
 	serializer_class = AwardSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
 	def get_queryset(self):
 		doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
@@ -84,7 +86,7 @@ class AwardViewSet(viewsets.ModelViewSet):
 class MembershipViewSet(viewsets.ModelViewSet):
 	queryset = Membership.objects.all()
 	serializer_class = MembershipSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
 	def get_queryset(self):
 		doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
@@ -102,7 +104,7 @@ class MembershipViewSet(viewsets.ModelViewSet):
 class RegistrationViewSet(viewsets.ModelViewSet):
 	queryset = Registration.objects.all()
 	serializer_class = RegistrationSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
 	def get_queryset(self):
 		doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
@@ -120,7 +122,7 @@ class RegistrationViewSet(viewsets.ModelViewSet):
 class DoctorScheduleViewSet(viewsets.ModelViewSet):
 	queryset = DoctorSchedule.objects.all()
 	serializer_class = DoctorScheduleSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
 	def get_queryset(self):
 		doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
@@ -138,7 +140,7 @@ class DoctorScheduleViewSet(viewsets.ModelViewSet):
 class TimeSlotViewSet(viewsets.ModelViewSet):
 	queryset = TimeSlot.objects.all()
 	serializer_class = TimeSlotSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
 	def get_queryset(self):
 		doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
@@ -156,7 +158,7 @@ class TimeSlotViewSet(viewsets.ModelViewSet):
 class SocialMediaViewSet(viewsets.ModelViewSet):
 	queryset = SocialMedia.objects.all()
 	serializer_class = SocialMediaSerializer
-	permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
 	def get_queryset(self):
 		doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])

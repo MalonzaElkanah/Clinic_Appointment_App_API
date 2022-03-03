@@ -1,7 +1,5 @@
 from rest_framework.permissions import BasePermission
 
-from django.contrib.auth.models import Group
-
 
 SAFE_METHODS = ['POST', 'HEAD', 'OPTIONS']
 
