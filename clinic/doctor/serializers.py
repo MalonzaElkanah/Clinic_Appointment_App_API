@@ -5,8 +5,10 @@ from rest_framework import serializers
 
 from client.models import MyUser
 from clinic.models import Doctor, Education, Experience, Award, Membership, Registration, \
-DoctorSchedule, TimeSlot, SocialMedia, AppoinmentReview, DoctorSchedule, TimeSlot
+DoctorSchedule, TimeSlot, SocialMedia, AppoinmentReview, DoctorSchedule, TimeSlot, Appointment
 from client.serializers import MyUserSerializer
+# from clinic.patient.serializers import AppointmentSerializer
+
 from mylib.common import MyCustomException
 
 DOCTOR_ROLES = []

@@ -131,6 +131,12 @@ class AppointmentSerializer(serializers.ModelSerializer):
 		model = Appointment
 		fields = "__all__"
 
+		extra_kwargs = {
+			"amount": {'read_only': True, 'validators': []},
+			# "status": {'read_only': True, 'validators': []},
+			# "follow_up_appointment": {'read_only': True}
+		}
+
 
 class BillSerializer(serializers.ModelSerializer):
 

@@ -196,7 +196,7 @@ class Appointment(models.Model):
 	doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
 	patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
 	purpose = models.CharField('Purpose', max_length=50)
-	amount = models.FloatField('Amount', default=0.00)
+	amount = models.FloatField('Amount', default=0.00, editable=False)
 	status = models.CharField('Status', max_length=20, choices=STATUS)
 	date_created = models.DateTimeField('Appointment Date', auto_now_add=True)
 	date_of_appointment = models.DateTimeField('Date Of Appointment')

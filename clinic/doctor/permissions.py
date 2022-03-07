@@ -1,5 +1,7 @@
 from rest_framework.permissions import BasePermission
 
+from clinic.models import Doctor
+
 
 SAFE_METHODS = ['POST', 'HEAD', 'OPTIONS']
 
@@ -28,13 +30,12 @@ class IsOwnerDoctorOrReadOnly(BasePermission):
     message = "Edit or POST Access Only to the Doctor Owner or Read only."
 
     def has_permission(self, request, view):
-        queryset = view.get_queryset()
-        if queryset.count() > 0:
-            for obj in queryset:
-                if obj.doctor.user.id == request.user.id:
-                    return True 
-        else:
-            return True
+        if request.user.role.name == "DOCTOR":
+            doctor_id = view.kwargs.get('doctor_pk', 0)
+            doctors = Doctor.objects.filter(user=request.user.id)
+            if doctors.count() > 0:
+                if doctors[0].id == int(doctor_id):
+                    return True
             
         if request.method in READ_SAFE_METHODS:
             return True
@@ -53,3 +54,64 @@ class IsOwnerDoctorOrReadOnly(BasePermission):
 
         # Instance must have an attribute named `doctor.user.id`.
         return obj.doctor.user.id == request.user.id
+
+
+class IsOwnerDoctorOrPatientPOSTOnly(BasePermission):
+    """
+    Owner or POST Only if Patient
+    """
+
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            if request.user.role.name == "PATIENT":
+                if request.method in SAFE_METHODS:
+                    return True
+            elif request.user.role.name == "DOCTOR":
+                doctor_id = view.kwargs.get('doctor_pk', 0)
+                doctors = Doctor.objects.filter(user=request.user.id)
+                if doctors.count() > 0:
+                    if doctors[0].id == int(doctor_id):
+                        return True
+
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_authenticated:
+            if request.method in SAFE_METHODS:
+                # POST permissions are allowed to patients
+                if request.user.role.name == "PATIENT":
+                    return True
+            elif obj.doctor.user.id == request.user.id:
+                return True
+        return False
+
+
+class IsOwnerReviewOrDoctorReadOnly(BasePermission):
+
+    def has_permission(self, request, view):
+        if request.user.is_authenticated:
+            # Doctor Read Safe Method
+            if request.user.role.name == "DOCTOR":
+                if request.method in READ_SAFE_METHODS:
+                    return True
+            elif request.user.role.name == "PATIENT":
+                if request.method in ALL_SAFE_METHODS:
+                    return True
+                    
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        if request.user.is_authenticated:
+            # Doctor Read Safe Method
+            if request.user.role.name == "DOCTOR":
+                if request.method in READ_SAFE_METHODS:
+                    return True
+            elif request.user.role.name == "PATIENT":
+                if obj.appointment.patient.user.id == request.user.id:
+                    return True
+                elif request.method in ALL_SAFE_METHODS:
+                    return True
+            
+        return False
+
+
