@@ -121,17 +121,3 @@ class IsOwnerOrDoctorReadOnly(BasePermission):
                 return True
         return obj.user.id == request.user.id
 
-
-class DoctorReadOnlyIfAuthenticatedOrPOSTOnly(BasePermission):
-
-    message = "Doctor Read only Access if User is Authenticated or POST Only."
-
-    def has_permission(self, request, view):
-        if request.user.is_authenticated:
-            if request.method in READ_SAFE_METHODS:
-                if request.user.role.name == "DOCTOR":
-                    return True
-            return False
-        elif request.method in SAFE_METHODS:
-            return True
-        return False

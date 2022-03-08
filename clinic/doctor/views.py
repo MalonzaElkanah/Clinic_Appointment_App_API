@@ -3,8 +3,8 @@ from rest_framework import viewsets
 from rest_framework.permissions import IsAuthenticated
 
 from client.permissions import IsOwnerOrReadOnly
-from clinic.doctor.permissions import ReadOnlyIfAuthenticatedOrPOSTOnly, IsOwnerDoctorOrReadOnly, \
-IsOwnerDoctorOrPatientPOSTOnly, IsOwnerReviewOrDoctorReadOnly
+from clinic.doctor.permissions import IsOwnerDoctorOrReadOnly, IsOwnerDoctorOrPatientPOSTOnly, \
+IsOwnerReviewOrDoctorReadOnly
 from clinic.patient.permissions import IsDoctorOrReadOnly
 from clinic.models import Doctor, Education, Experience, Award, Membership, Registration, \
 DoctorSchedule, TimeSlot, SocialMedia, Appointment, AppoinmentReview, Patient
@@ -22,7 +22,7 @@ import datetime as dt
 class ListCreateDoctor(generics.ListCreateAPIView):
 	queryset = Doctor.objects.all()
 	serializer_class = DoctorSerializer
-	permission_classes = [ReadOnlyIfAuthenticatedOrPOSTOnly]
+	permission_classes = []
 
 
 class RetrieveUpdateDestroyDoctor(generics.RetrieveUpdateDestroyAPIView):

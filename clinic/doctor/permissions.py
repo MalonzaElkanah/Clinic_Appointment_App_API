@@ -9,18 +9,6 @@ READ_SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
 
 ALL_SAFE_METHODS = ['POST', 'HEAD', 'OPTIONS', 'GET']
 
-class ReadOnlyIfAuthenticatedOrPOSTOnly(BasePermission):
-
-    message = "Read only Access if User is Authenticated or POST Only."
-
-    def has_permission(self, request, view):
-        if request.user.is_authenticated:
-            if request.method in READ_SAFE_METHODS:
-                return True
-        elif request.method in SAFE_METHODS:
-            return True
-        return False
-
 
 class IsOwnerDoctorOrReadOnly(BasePermission): 
     """
