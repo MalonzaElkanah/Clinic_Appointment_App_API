@@ -1,4 +1,5 @@
 venv
+temp_user_logs.*
 
 .env
 

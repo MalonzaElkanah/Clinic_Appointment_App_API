@@ -34,7 +34,7 @@ class MyUser(UserMixin, AbstractUser):
 
     role = models.ForeignKey(Group, null=True, blank=True, on_delete=models.SET_NULL)
     phone = models.CharField(max_length=50)
-    image = models.ImageField("uploads", upload_to=scramble, null=True, blank=True)
+    image = models.ImageField("Profile Image", upload_to=scramble, null=True, blank=True)
     thumbnail = ImageSpecField(source='image', processors=[ResizeToFit(height=400)], format='JPEG',
         options={'quality': 80})
     confirm_code = models.IntegerField(null=True, blank=True)

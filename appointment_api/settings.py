@@ -26,8 +26,12 @@ SECRET_KEY = 'xic3t(fgx4udy0uq7=g-^6^l08j$ti0d9-v9_5aj(2x3i_(p18'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+# Logging user activity
+ACTIVATE_LOGS = True
+LOG_AUTHENTICATED_USERS_ONLY = False
+IP_ADDRESS_HEADERS = ('HTTP_X_REAL_IP', 'HTTP_CLIENT_IP', 'HTTP_X_FORWARDED_FOR', 'REMOTE_ADDR')
 
 # Application definition
 
@@ -57,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.gzip.GZipMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'corsheaders.middleware.CorsMiddleware',
+    'client.middleware.UserLoggerMiddleware',
 ]
 
 ROOT_URLCONF = 'appointment_api.urls'
@@ -89,6 +94,11 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 10
 }
 
 WSGI_APPLICATION = 'appointment_api.wsgi.application'
