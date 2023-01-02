@@ -33,7 +33,8 @@ class Doctor(models.Model):
 	pricing =  models.FloatField('Amount', default=0.00)
 	services = models.CharField('Services', max_length=1000, blank=True)
 	specialization = models.CharField('Specialization', max_length=1000, blank=True)
-	speciality = models.OneToOneField(Speciality, on_delete=models.CASCADE)
+	speciality = models.ForeignKey(Speciality, on_delete=models.CASCADE)
+	clinic_invites = models.ManyToManyField('Clinic')
 
 	def __str__(self):
 		return "{} {} {}".format(self.title, self.user.first_name, self.user.last_name).title()  

@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'drf_autodocs',
+    'rest_framework.authtoken',
+    # 'drf_autodocs',
     'corsheaders',
     'imagekit',
     'client.apps.ClientConfig',
@@ -86,20 +87,18 @@ TEMPLATES = [
 ]
 
 REST_FRAMEWORK = {
-    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',)
-}
-
-REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ('django_filters.rest_framework.DjangoFilterBackend',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
+        # 'rest_framework.authentication.TokenAuthentication',
+        'client.authentication.BearerAuthentication',
         'rest_framework.authentication.BasicAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-}
 
-REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 10
 }
+
 
 WSGI_APPLICATION = 'appointment_api.wsgi.application'
 
@@ -119,11 +118,11 @@ DATABASES = {
 
 # Email
 EMAIL_USE_SSL = True
-EMAIL_HOST=os.getenv("EMAIL_HOST")
-EMAIL_HOST_USER=os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD= os.getenv("EMAIL_HOST_PASSWORD")
+EMAIL_HOST = os.getenv("EMAIL_HOST")
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
 EMAIL_PORT = os.getenv("EMAIL_PORT")
-
+DEFAULT_FROM_EMAIL = os.getenv("EMAIL_HOST")
 
 # Password validation
 # https://docs.djangoproject.com/en/3.1/ref/settings/#auth-password-validators

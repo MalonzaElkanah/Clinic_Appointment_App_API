@@ -4,7 +4,9 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 from django.conf import settings
 
-from drf_autodocs.views import TreeView
+# from drf_autodocs.views import TreeView
+from rest_framework.authtoken import views
+
 
 urlpatterns_v1 = [
     path('users/', include('client.urls')),
@@ -21,8 +23,9 @@ apiversions_urlsparterns = [
 
 urlpatterns = [
     path('apiauth/', include('rest_framework.urls')), 
+    path('api-token-auth/', views.obtain_auth_token, name="api-token"),
     path('api/', include(apiversions_urlsparterns)),
-    path('', TreeView.as_view(), name='api-tree'),
+    # path('', TreeView.as_view(), name='api-tree'),
 ]
 
 urlpatterns += staticfiles_urlpatterns()

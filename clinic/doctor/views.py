@@ -10,8 +10,7 @@ from clinic.models import Doctor, Education, Experience, Award, Membership, Regi
 DoctorSchedule, TimeSlot, SocialMedia, Appointment, AppoinmentReview, Patient
 from clinic.doctor.serializers import DoctorSerializer, EducationSerializer, ExperienceSerializer, \
 AwardSerializer, MembershipSerializer, RegistrationSerializer, DoctorScheduleSerializer, \
-TimeSlotSerializer, SocialMediaSerializer, ReviewSerializer
-from clinic.patient.serializers import AppointmentSerializer
+TimeSlotSerializer, SocialMediaSerializer, ReviewSerializer, AppointmentSerializer
 
 from mylib.common import MyCustomException
 
@@ -137,12 +136,24 @@ class DoctorScheduleViewSet(viewsets.ModelViewSet):
 		if doctor.count() < 1:
 			raise MyCustomException("Error: You are not a Doctor")
 		
+		# Validate only the timeslot belongs to the doctor
+		time_slots = serializer.validated_data.get("time_slot")
+		print(time_slots)
+		my_time_slots = TimeSlot.objects.filter(doctor=doctor[0].id)
+		for slot in time_slots:
+			if slot not in my_time_slots:
+				raise MyCustomException(
+					f"Error: {slot} time slot is unauthorized. Choose a valid one."
+				)
+
 		# Validate only one Instance of Day
 		day = serializer.validated_data.get("day")
 		schedules = self.get_queryset()
 		for schedule in schedules:
 			if schedule.day == day:
-				raise MyCustomException("Error: {} schedule has already been created.".format(day))
+				raise MyCustomException(
+					"Error: {} schedule has already been created.".format(day)
+				)
 
 		serializer.save(doctor=doctor[0])
 
@@ -221,7 +232,11 @@ class AppointmentViewSet(viewsets.ModelViewSet):
 				if valid_date["validated"] == False:
 					raise MyCustomException(valid_date["message"])
 			serializer.save(
-				patient=patients[0], doctor=doctors[0], status='WAITING', amount=doctors[0].pricing)
+				patient=patients[0], 
+				doctor=doctors[0], 
+				status='WAITING', 
+				amount=doctors[0].pricing
+			)
 		else:
 			raise MyCustomException("Error: You don't have permissions to create Appointments.")			
 		

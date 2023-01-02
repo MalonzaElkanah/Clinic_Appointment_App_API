@@ -128,7 +128,6 @@ class InvoiceViewSet(viewsets.ReadOnlyModelViewSet):
 		return Invoice.objects.filter(appointment__patient=patients[0].id)
 
 
-
 def validate_appointment_date(doctor, date_time):
 	schedules = DoctorSchedule.objects.filter(doctor=doctor)
 	if schedules.count() > 0:

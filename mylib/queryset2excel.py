@@ -65,13 +65,7 @@ def exportcsv(headers=[], title="Sheet", filename=None, queryset=[], export_csv=
     else:
         wb.save(temp_filename)
 
-    with open(temp_filename) as f:
-        default_storage.delete('%s'%(myfilename))
-        path=default_storage.save('%s'%(myfilename), f)
-        
-    url=path
-
-    return path
+    return temp_filename
 
 
 if __name__ == '__main__':

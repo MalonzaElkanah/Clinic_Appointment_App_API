@@ -1,3 +1,5 @@
+from django.http import HttpResponse
+
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
@@ -29,5 +31,18 @@ class ExportActivityLogs(generics.ListAPIView):
 		queryset = self.get_serializer(self.get_queryset(), many=True).data
 		path = exportcsv(filename=filename, queryset=queryset, headers=headers, title="User Logs", 
 			export_csv=True, request=self.request)
-		return Response({"path": path})
+
+		try:
+			with open(path, 'r') as f:
+				file_data = f.read()
+
+			# sending response 
+			response = HttpResponse(file_data, content_type='application/vnd.ms-excel')
+			response['Content-Disposition'] = f'attachment; filename="{filename}.csv"'
+
+		except IOError as e:
+			print(e)
+			response = Response({'detail': 'Error Occured'})
+
+		return response
 

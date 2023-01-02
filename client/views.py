@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Group
 
-from rest_framework import generics
+from rest_framework import generics, status
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -106,8 +106,17 @@ class ForgotPasswordView(APIView):
 		cls[0].save()
 		name = user.first_name
 		try:
-			data = {"name": name, "reset_code": reset_code}
-			MySendEmail('Password Reset Code', "forgot.html", data, [email])
+			message = f"""
+			Hey {name}, \n 
+			We've sent you the code: {reset_code} to reset your password.\n
+			{reset_code}\n
+			Good DAY.
+			"""
+			MySendEmail(
+				'Password Reset Code', 
+				message, 
+				[email]
+			)
 			return Response({"detail": "Reset code sent successfully."})
 		except Exception as e:
 			print(e)

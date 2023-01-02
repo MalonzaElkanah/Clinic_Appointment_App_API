@@ -14,11 +14,11 @@ from mylib.common import MyCustomException
 DOCTOR_ROLES = []
 roles = Group.objects.filter(name="DOCTOR")
 for role in roles:
-	DOCTOR_ROLES.append(role.id)
+	DOCTOR_ROLES.append(role)
 
 
 class ClientSerializer(serializers.ModelSerializer):
-	role = serializers.HiddenField(default=DOCTOR_ROLES[0])
+	# role = serializers.HiddenField(default=DOCTOR_ROLES[0])
 
 	class Meta:
 		model = MyUser
@@ -32,13 +32,14 @@ class ClientSerializer(serializers.ModelSerializer):
 			"last_login": {'read_only': True, 'required': False},
 			"verified": {'read_only': True, 'required': False},
 			"date_joined": {'read_only': True, 'required': False},
+			"role": {'read_only': True, 'required': False},
 		}
 
 	def create(self, validated_data):
 		password = validated_data.pop('password', None)
-		instance = self.Meta.model(**validated_data)
+		instance = self.Meta.model(**validated_data, role=DOCTOR_ROLES[0])
 		if password is not None:
-		    instance.set_password(password)
+			instance.set_password(password)
 		instance.save()
 		return instance
 
@@ -52,15 +53,6 @@ class ClientSerializer(serializers.ModelSerializer):
 		instance.save()
 		return instance
 
-	def validate(self, data):
-		"""
-		Check that User Role is PATIENT.
-		"""
-		if int(data['role']) not in DOCTOR_ROLES:
-			raise serializers.ValidationError("The User role must be DOCTOR")
-		return data
-
-
 
 class DoctorSerializer(serializers.ModelSerializer):
 
@@ -68,52 +60,58 @@ class DoctorSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Doctor
-		fields = "__all__"
+		exclude = ("clinic_invites",)
 
 	def create(self, validated_data):
 		user_data = validated_data.pop('user')
+
 		username = user_data.get('username', None)
 		email = user_data.get('email', None)
 		password = user_data.get('password', None)
+
 		if None in [username, email, password]: 
 			raise serializers.ValidationError("Email, Username and Password fields are required.")
+
 		user = self.user_update_or_create(user_data)
+
+		if password is not None:
+			user.set_password(password)
+			user.save()
+
 		return Doctor.objects.create(user=user, **validated_data)			
 
 	def update(self, instance, validated_data):
-		# serializer = CommentSerializer(comment, data=data)
 		user_data = validated_data.pop('user')
+
 		username = user_data.get('username', None)
 		email = user_data.get('email', None)
 		user_data.update({'password': None})
 		password = user_data.pop('password')
+
 		if None in [username, email]: 
 			raise serializers.ValidationError("Email and Username fields are required.")
+
 		user = self.user_update_or_create(user_data, instance=instance.user)
+
 		instance.user = user
-		# title, biography, pricing, services, specialization, speciality
 		instance.title = validated_data.get('title', instance.title)
 		instance.biography = validated_data.get('biography', instance.biography)
 		instance.pricing = validated_data.get('pricing', instance.pricing)
 		instance.services = validated_data.get('services', instance.services)
 		instance.specialization = validated_data.get('specialization', instance.specialization)
 		instance.speciality = validated_data.get('speciality', instance.speciality)
+
 		instance.save()
+
 		return instance
 
 	def user_update_or_create(self, user_data, instance=None):
-		role_data = user_data.pop('role')
-		groups = Group.objects.filter(id=int(role_data))
-		group = None
-		if groups.count()>0:
-			group = groups[0]
-
 		user = None
 		email = user_data.pop('email')
 		username = user_data.pop('username')
 		if instance is not None:
 			user = MyUser.objects.filter(id=instance.id)
-			user.update(role=group, **user_data)
+			user.update(role=DOCTOR_ROLES[0], **user_data)
 			user = MyUser.objects.get(id=instance.id)
 		else:
 			users = MyUser.objects.filter(username=username)
@@ -169,7 +167,7 @@ class TimeSlotSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = TimeSlot
-		fields = '__all__'
+		exclude = ("doctor",)
 
 
 class DoctorScheduleSerializer(serializers.ModelSerializer):
@@ -177,7 +175,7 @@ class DoctorScheduleSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = DoctorSchedule
-		fields = '__all__'
+		exclude = ("doctor",)
 
 
 class SocialMediaSerializer(serializers.ModelSerializer):
@@ -193,3 +191,16 @@ class ReviewSerializer(serializers.ModelSerializer):
 		model = AppoinmentReview
 		fields = '__all__'
 
+
+class AppointmentSerializer(serializers.ModelSerializer):
+
+	class Meta:
+		model = Appointment
+		fields = "__all__"
+
+		extra_kwargs = {
+			"amount": {'read_only': True, 'validators': []},
+			"status": {'read_only': True, 'validators': []},
+			"doctor": {'read_only': True, 'validators': []},
+			"follow_up_appointment": {'read_only': True}
+		}

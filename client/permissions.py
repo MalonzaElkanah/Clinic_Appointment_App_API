@@ -69,6 +69,9 @@ class IsRoleAdmin(BasePermission):
         if not request.user.is_authenticated:
             return False
 
+        if request.user.role is None:
+            return False
+
         if request.user.role.name == "ADMIN":
             return True
 
@@ -77,6 +80,9 @@ class IsRoleAdmin(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         if not request.user.is_authenticated:
+            return False
+
+        if request.user.role is None:
             return False
 
         if request.user.role.name == "ADMIN":

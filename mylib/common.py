@@ -1,5 +1,4 @@
 from django.core.mail import send_mail
-from django.template.loader import render_to_string
 from django.conf import settings
 
 from rest_framework.exceptions import APIException
@@ -9,20 +8,26 @@ import os
 
 load_dotenv(os.path.join(settings.BASE_DIR, '.env'))
 
-def MySendEmail(subject, template, data, recipients, from_email=None):
-    if from_email == None:from_email=DEFAULT_FROM_EMAIL
-    rendered = render_to_string(template, data)
-    # print("Sending email...")
-    ema = send_mail(
+def MySendEmail(subject, message, recipients, from_email=None):
+    if from_email is None:
+        from_email = settings.DEFAULT_FROM_EMAIL
+
+    print("Sending email...\n\n")
+    print(f"From: <{from_email}>")
+    print(f"To: <{recipients}>\n")
+    print(f"Subject: {subject}\n")
+    print(message)
+
+    email = send_mail(
         subject=subject,
-        message="",
-        html_message=rendered,
+        message=message,
+        # html_message=rendered,
         from_email=from_email,
-        recipient_list=recipients,  # ['micha@sisitech.com'],
+        recipient_list=recipients,
         fail_silently=False,
-        # reply_to="room@katanawebworld.com"
     )
-    return ema
+
+    return email
 
 
 
