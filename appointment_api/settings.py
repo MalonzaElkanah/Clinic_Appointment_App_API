@@ -44,7 +44,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework.authtoken',
-    # 'drf_autodocs',
+    'rest_framework_swagger', # 'drf_autodocs',
     'corsheaders',
     'imagekit',
     'client.apps.ClientConfig',
@@ -171,3 +171,9 @@ STATICFILES_DIRS = (
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
 MEDIA_URL='/media/'
 # LOGIN_REDIRECT_URL = '../api/v1/users/me/'
+
+
+# Default primary key field type
+# https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
