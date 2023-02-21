@@ -4,15 +4,16 @@ from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
 from django.conf import settings
 
-# from drf_autodocs.views import TreeView
 from rest_framework.authtoken import views
+from rest_framework.schemas import get_schema_view
 
-from rest_framework.schemas import get_schema_view 
-# from rest_framework_swagger.views import get_swagger_view
 
-schema_view = get_schema_view(title='Clinic Appointment APIs', description="API for all things …",
-        version="1.0.0")
-
+schema_view = get_schema_view(
+    title='Clinic Appointment APIs', 
+    description="API Docs for Clinic Appointment App APIs",
+    url="http://127.0.0.1:8000/",
+    version="1.0.0"
+)
 
 urlpatterns_v1 = [
     path('users/', include('client.urls')),
@@ -31,7 +32,7 @@ urlpatterns = [
     path('apiauth/', include('rest_framework.urls')), 
     path('api-token-auth/', views.obtain_auth_token, name="api-token"),
     path('api/', include(apiversions_urlsparterns)),
-    path('', schema_view), # path('', TreeView.as_view(), name='api-tree'),
+    path('', schema_view),
 ]
 
 urlpatterns += staticfiles_urlpatterns()
