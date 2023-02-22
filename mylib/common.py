@@ -6,7 +6,9 @@ from rest_framework.exceptions import APIException
 from dotenv import load_dotenv
 import os
 
+
 load_dotenv(os.path.join(settings.BASE_DIR, '.env'))
+
 
 def MySendEmail(subject, message, recipients, from_email=None):
     if from_email is None:
@@ -28,7 +30,6 @@ def MySendEmail(subject, message, recipients, from_email=None):
     )
 
     return email
-
 
 
 class MyCustomException(APIException):

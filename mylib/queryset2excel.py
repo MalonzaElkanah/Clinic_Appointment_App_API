@@ -3,19 +3,13 @@ import csv
 import openpyxl
 from openpyxl.utils import get_column_letter
 
-from django.core.files.storage import default_storage
-
 
 def generate_model_template(model):
-    fields = [f for f in model._meta.get_fields() if
-              f.name and not f.null and f.get_internal_type() ]
+    return [f for f in model._meta.get_fields() if f.name and not f.null and f.get_internal_type()]
 
 
 def exportcsv(headers=[], title="Sheet", filename=None, queryset=[], export_csv=False, request=None):
-    path=""
-
     # Get the totals
-    queryset_length = len(queryset)
     headers_length = len(headers)
 
     # New workbook
@@ -43,14 +37,14 @@ def exportcsv(headers=[], title="Sheet", filename=None, queryset=[], export_csv=
         # Loop through all the headers
         for j, col in enumerate(myheaders):
             dt = data[col["value"]]
-            dat = ",".join(list(dt)) if type(dt) in [list,set] else dt
-            sheet.cell(row=i+2,column=j+1).value=dat
+            dat = ",".join(list(dt)) if type(dt) in [list, set] else dt
+            sheet.cell(row=i+2, column=j+1).value = dat
 
     # The output filename
-    myfilename="%s.%s"%(filename,"csv" if export_csv else ".xlsx")
+    myfilename = "%s.%s" % (filename, "csv" if export_csv else ".xlsx")
 
     # Temporary filename for openxl
-    temp_filename="temp_%s"%(myfilename)
+    temp_filename = "temp_%s" % (myfilename)
 
     # Temporarily save the file
     if export_csv:
@@ -70,4 +64,3 @@ def exportcsv(headers=[], title="Sheet", filename=None, queryset=[], export_csv=
 
 if __name__ == '__main__':
     pass
-

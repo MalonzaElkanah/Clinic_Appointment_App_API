@@ -10,7 +10,7 @@ READ_SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
 ALL_SAFE_METHODS = ['POST', 'HEAD', 'OPTIONS', 'GET']
 
 
-class IsOwnerDoctorOrReadOnly(BasePermission): 
+class IsOwnerDoctorOrReadOnly(BasePermission):
     """
     Permission to only allow doctor-owner of an object to access it.
     Assumes the model instance has an `doctor.user.id` attribute.
@@ -24,7 +24,7 @@ class IsOwnerDoctorOrReadOnly(BasePermission):
             if doctors.count() > 0:
                 if doctors[0].id == int(doctor_id):
                     return True
-            
+
         if request.method in READ_SAFE_METHODS:
             return True
 
@@ -85,7 +85,7 @@ class IsOwnerReviewOrDoctorReadOnly(BasePermission):
             elif request.user.role.name == "PATIENT":
                 if request.method in ALL_SAFE_METHODS:
                     return True
-                    
+
         return False
 
     def has_object_permission(self, request, view, obj):
@@ -99,7 +99,5 @@ class IsOwnerReviewOrDoctorReadOnly(BasePermission):
                     return True
                 elif request.method in ALL_SAFE_METHODS:
                     return True
-            
+
         return False
-
-

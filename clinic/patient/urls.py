@@ -12,8 +12,8 @@ router.register(r'favourite-doctor', views.FavouriteDoctorViewSet)
 router.register(r'appointments', views.AppointmentViewSet)
 router.register(r'invoices', views.InvoiceViewSet)
 
-urlpatterns=[
-	path('', views.ListCreatePatient.as_view(), name="patient_list_create"),
-	path('<int:pk>/', views.RetrieveUpdateDestroyPatient.as_view(), name="patient_retrieve_update"),
-	path('<int:patient_pk>/', include(router.urls)),
+urlpatterns = [
+    path('', views.ListCreatePatient.as_view(), name="patient_list_create"),
+    path('<int:pk>/', views.RetrieveUpdateDestroyPatient.as_view(), name="patient_retrieve_update"),
+    path('<int:patient_pk>/', include(router.urls)),
 ]

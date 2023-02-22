@@ -5,8 +5,6 @@ from administrator.models import Speciality
 
 class SpecialitySerializer(serializers.ModelSerializer):
 
-	class Meta:
-		model = Speciality
-		fields = "__all__"
-
-
+    class Meta:
+        model = Speciality
+        fields = "__all__"

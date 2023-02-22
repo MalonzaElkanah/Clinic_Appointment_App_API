@@ -1,7 +1,5 @@
 from rest_framework.permissions import BasePermission
 
-from django.contrib.auth.models import Group
-
 
 SAFE_METHODS = ['POST', 'HEAD', 'OPTIONS']
 
@@ -77,7 +75,6 @@ class IsRoleAdmin(BasePermission):
 
         return request.user.is_staff
 
-
     def has_object_permission(self, request, view, obj):
         if not request.user.is_authenticated:
             return False
@@ -139,4 +136,3 @@ class IsRolePatient(BasePermission):
             return True
 
         return False
-

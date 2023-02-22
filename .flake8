@@ -1,0 +1,4 @@
+[flake8]
+extend-ignore = E501
+exclude = .git,__pycache__,venv,instance,.env,.env.sample,migrations
+max-complexity = 10

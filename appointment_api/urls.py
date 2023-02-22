@@ -1,4 +1,3 @@
-from django.contrib import admin
 from django.urls import path, include
 from django.contrib.staticfiles.urls import staticfiles_urlpatterns
 from django.conf.urls.static import static
@@ -9,7 +8,7 @@ from rest_framework.schemas import get_schema_view
 
 
 schema_view = get_schema_view(
-    title='Clinic Appointment APIs', 
+    title='Clinic Appointment APIs',
     description="API Docs for Clinic Appointment App APIs",
     url="http://127.0.0.1:8000/",
     version="1.0.0"
@@ -29,7 +28,7 @@ apiversions_urlsparterns = [
 ]
 
 urlpatterns = [
-    path('apiauth/', include('rest_framework.urls')), 
+    path('apiauth/', include('rest_framework.urls')),
     path('api-token-auth/', views.obtain_auth_token, name="api-token"),
     path('api/', include(apiversions_urlsparterns)),
     path('', schema_view),

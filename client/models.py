@@ -1,8 +1,5 @@
 from __future__ import unicode_literals
 
-from datetime import timedelta
-
-import sys
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.contrib.auth.models import Group
@@ -13,9 +10,8 @@ from django.utils import timezone
 
 from rest_framework.authtoken.models import Token
 
-# Create your models here.
 from imagekit.models import ImageSpecField
-from pilkit.processors import ResizeToFill, ResizeToFit
+from pilkit.processors import ResizeToFit
 
 from mylib.image import scramble
 
@@ -31,15 +27,17 @@ class UserMixin(models.Model):
         abstract = True
 
 
-class MyUser(UserMixin, AbstractUser):  
+class MyUser(UserMixin, AbstractUser):
     SEX = (('MALE', 'Male'), ('FEMALE', 'Female'), ('NS', 'Not Set'))
     # ROLES = ((1, 'DOCTOR'), (2, 'PATIENT'), (3, 'ADMIN'))
 
     role = models.ForeignKey(Group, null=True, blank=True, on_delete=models.SET_NULL)
     phone = models.CharField(max_length=50)
     image = models.ImageField("Profile Image", upload_to=scramble, null=True, blank=True)
-    thumbnail = ImageSpecField(source='image', processors=[ResizeToFit(height=400)], format='JPEG',
-        options={'quality': 80})
+    thumbnail = ImageSpecField(
+        source='image', processors=[ResizeToFit(height=400)], format='JPEG',
+        options={'quality': 80}
+    )
     confirm_code = models.IntegerField(null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
     reset_code = models.IntegerField(null=True, blank=True)
@@ -56,7 +54,7 @@ class MyUser(UserMixin, AbstractUser):
 
     @property
     def full_name(self):
-        return "{} {}".format(self.first_name, self.last_name).title()  
+        return "{} {}".format(self.first_name, self.last_name).title()
 
     class Meta:
         ordering = ('id',)

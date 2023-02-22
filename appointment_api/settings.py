@@ -103,7 +103,7 @@ WSGI_APPLICATION = 'appointment_api.wsgi.application'
 
 AUTH_USER_MODEL = 'client.MyUser'
 
-CORS_ORIGIN_ALLOW_ALL=True
+CORS_ORIGIN_ALLOW_ALL = True
 
 # Database
 # https://docs.djangoproject.com/en/3.1/ref/settings/#databases
@@ -168,7 +168,7 @@ STATICFILES_DIRS = (
 
 
 MEDIA_ROOT = os.path.join(os.path.dirname(BASE_DIR), 'media')
-MEDIA_URL='/media/'
+MEDIA_URL = '/media/'
 # LOGIN_REDIRECT_URL = '../api/v1/users/me/'
 
 

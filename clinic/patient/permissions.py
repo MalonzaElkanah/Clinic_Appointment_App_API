@@ -8,7 +8,7 @@ READ_SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
 ALL_SAFE_METHODS = ['POST', 'HEAD', 'OPTIONS', 'GET']
 
 
-class IsOwnerDoctorOrReadOnly(BasePermission): 
+class IsOwnerDoctorOrReadOnly(BasePermission):
     """
     Object-level permission to only allow doctor-owners of an object to edit it.
     Assumes the model instance has an `doctor.user.id` attribute.
@@ -50,7 +50,7 @@ class IsOwnerOrDoctor(BasePermission):
         if queryset.count() > 0:
             for obj in queryset:
                 if obj.patient.user.id == request.user.id:
-                    return True 
+                    return True
         else:
             return True
         return False
@@ -61,7 +61,7 @@ class IsOwnerOrDoctor(BasePermission):
         return obj.patient.user.id == request.user.id
 
 
-class IsOwnerDoctorOrIsOwnerPatient(BasePermission): 
+class IsOwnerDoctorOrIsOwnerPatient(BasePermission):
     """
     Permission to only allow doctor-owners/patient-owners of an object to access it.
     Assumes the model instance has an `doctor.user.id` or `patient.user.id` attribute.
@@ -73,9 +73,9 @@ class IsOwnerDoctorOrIsOwnerPatient(BasePermission):
         if queryset.count() > 0:
             for obj in queryset:
                 if obj.patient.user.id == request.user.id:
-                    return True 
+                    return True
                 elif obj.doctor.user.id == request.user.id:
-                    return True 
+                    return True
         else:
             return True
 
@@ -90,7 +90,7 @@ class IsOwnerDoctorOrIsOwnerPatient(BasePermission):
         return False
 
 
-class IsOwnerPatient(BasePermission): 
+class IsOwnerPatient(BasePermission):
     """
     Permission to only allow patient-owners of an object or queryset to access it.
     Assumes the model instance has an `patient.user.id` attribute.
@@ -102,7 +102,7 @@ class IsOwnerPatient(BasePermission):
         if queryset.count() > 0:
             for obj in queryset:
                 if obj.patient.user.id == request.user.id:
-                    return True 
+                    return True
         else:
             return True
 
@@ -110,6 +110,7 @@ class IsOwnerPatient(BasePermission):
 
     def has_object_permission(self, request, view, obj):
         return obj.patient.user.id == request.user.id
+
 
 class IsOwnerOrDoctorReadOnly(BasePermission):
 
@@ -120,4 +121,3 @@ class IsOwnerOrDoctorReadOnly(BasePermission):
             if request.user.role.name == "DOCTOR":
                 return True
         return obj.user.id == request.user.id
-

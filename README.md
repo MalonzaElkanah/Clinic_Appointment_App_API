@@ -15,32 +15,54 @@ Built with Django REST Framework
 
 ## Features
 ### Implemented
-1. User Activity Logs List (**ADMIN**)
-2. User Activity Logs Export (**ADMIN**)
-3. Create, List, Detail, Update and Delete Doctor Speciality (**ADMIN**)
-4. Create, List, Detail, Update and Delete Clinic
-5. Clinic Invite Doctor
-6. Doctor Accept Invite
-    - Doctor Reject Clinic Invite
-7. Create, List, Detail, Update and Delete Doctor 
-8. Create, List, Detail, Update and Delete Doctor's Timeslot and Schedule 
-9. Create, List, Detail, Update and Delete Doctor's 
-    - Education, 
-    - Awards,
-    - Experience,
-    - Membership and
-    - Registration
-10. Create, List, Detail, Update and Delete Patient
-11. Book Appointment by Patient
-11. Create, List, Detail, Update and Delete Patient's Medical Record
+0. Create User
+  - Generate token (Login), Revoke token by User
+  - Update, View User profile by User owner
+  - Forgot, Reset User Password by User owner
+  - Delete, View user by Admin
+  
+1. View User Activity Logs List by Admin
+2. Export User Activity Logs as CSV/Excel by Admin
+    - Create, List, Detail, Update and Delete of User Roles by Admin
+
+3. Create, List, Detail, Update and Delete Doctor Speciality by Admin
+4. Create and List Clinic by User. 
+    - Detail, Update and Delete Clinic by Clinic Owner
+5. Clinic Invite Doctor by Clinic Owner
+
+6. Doctor Accept Invite by Invited Doctor
+    - Doctor Reject Clinic Invite by Invited Doctor
+
+7. Create, List and Detail Doctor
+    - Update and Delete Doctor by Owner Doctor
+
+8. Create, Update and Delete Doctor's Timeslot and Schedule by Owner Doctor
+    - List and Detail view of Doctor's Timeslot and Schedule by any user
+
+9. Create, Update and Delete Doctor's Education, Awards, Experience, Membership and Registration by Owner Doctor.
+    - List and Detail view of Doctor's Education, Awards, Experience, Membership and Registration by any user
+
+10. Create, List and Detail Patient
+    - Update and Delete Patient by Owner Doctor
+11. Book, cancel and request reschedule Appointment with a doctor by Patient
+    - Accept, cancel, request reschedule and follow-up appointment by Doctor 
+
+11. Create, List, Detail, Update and Delete Patient's Medical Record by Doctor
+    - View Medical Record by owner patient
 12. Create, List, Detail, Update and Delete Patient's Presicription by DOCTOR
-13. Billing
-14. Invoices
+    - View Presicription by owner patient
+
+13. Appointment Billing
+14. Generate Invoices
+
 15. Review Doctor by Patient
-16. 
+16. Doctor Reply to review
+17. Users like reviews and reply
 
 ### Todo
-- 
+- Write tests for above features
+- Document apis with Postman
+- JWT Authentication
 
 
 ## Installation Guide
@@ -77,6 +99,7 @@ At this point, the development server should be accessible at _http://127.0.0.1:
 - **django-cors-headers:** A Django App that adds Cross-Origin Resource Sharing (CORS) headers to responses. This allows in-browser requests to your Django application from other origins.
 - **pilkit:** PILKit is a collection of utilities for working with PIL (the Python Imaging Library). One of its main features is a set of processors which expose a simple interface for performing manipulations on PIL images.
 - **openpyxl:** The Openpyxl library is used to write or read the data in the excel file and many other tasks.
+- **flake8** - static analysis tool
 
 ## Reference Resources
 - [virtualenv](https://docs.python-guide.org/dev/virtualenvs/)

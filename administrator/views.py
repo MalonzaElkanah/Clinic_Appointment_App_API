@@ -8,12 +8,12 @@ from administrator.serializers import SpecialitySerializer
 
 
 class ListCreateSpeciality(generics.ListCreateAPIView):
-	queryset = Speciality.objects.all()
-	serializer_class = SpecialitySerializer
-	permission_classes = [IsRoleAdmin]
+    queryset = Speciality.objects.all()
+    serializer_class = SpecialitySerializer
+    permission_classes = [IsRoleAdmin]
 
 
 class RetrieveUpdateDestroySpeciality(generics.RetrieveUpdateDestroyAPIView):
-	queryset = Speciality.objects.all()
-	serializer_class = SpecialitySerializer
-	permission_classes = [IsRoleAdmin]
+    queryset = Speciality.objects.all()
+    serializer_class = SpecialitySerializer
+    permission_classes = [IsRoleAdmin]
