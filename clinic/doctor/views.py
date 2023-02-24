@@ -4,23 +4,40 @@ from rest_framework.permissions import IsAuthenticated
 
 from client.permissions import IsOwnerOrReadOnly
 from clinic.doctor.permissions import (
-    IsOwnerDoctorOrReadOnly, IsOwnerDoctorOrPatientPOSTOnly, IsOwnerReviewOrDoctorReadOnly
+    IsOwnerDoctorOrReadOnly,
+    IsOwnerDoctorOrPatientPOSTOnly,
+    IsOwnerReviewOrDoctorReadOnly,
 )
 from clinic.models import (
-    Doctor, Education, Experience, Award, Membership, Registration,
-    DoctorSchedule, TimeSlot, SocialMedia, Appointment, AppoinmentReview, Patient
+    Doctor,
+    Education,
+    Experience,
+    Award,
+    Membership,
+    Registration,
+    DoctorSchedule,
+    TimeSlot,
+    SocialMedia,
+    Appointment,
+    AppoinmentReview,
+    Patient,
 )
 from clinic.doctor.serializers import (
-    DoctorSerializer, EducationSerializer, ExperienceSerializer,
-    AwardSerializer, MembershipSerializer, RegistrationSerializer,
-    DoctorScheduleSerializer, TimeSlotSerializer, SocialMediaSerializer,
-    ReviewSerializer, AppointmentSerializer
+    DoctorSerializer,
+    EducationSerializer,
+    ExperienceSerializer,
+    AwardSerializer,
+    MembershipSerializer,
+    RegistrationSerializer,
+    DoctorScheduleSerializer,
+    TimeSlotSerializer,
+    SocialMediaSerializer,
+    ReviewSerializer,
+    AppointmentSerializer,
 )
+from clinic.utils import validate_appointment_date
 
 from mylib.common import MyCustomException
-
-import datetime as dt
-# Create your views here.
 
 
 class ListCreateDoctor(generics.ListCreateAPIView):
@@ -41,7 +58,7 @@ class EducationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
     def get_queryset(self):
-        doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+        doctors = Doctor.objects.filter(id=self.kwargs["doctor_pk"])
         if doctors.count() < 1:
             raise MyCustomException("Error: Doctor not Found")
         return Education.objects.filter(doctor=doctors[0].id)
@@ -59,7 +76,7 @@ class ExperienceViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
     def get_queryset(self):
-        doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+        doctors = Doctor.objects.filter(id=self.kwargs["doctor_pk"])
         if doctors.count() < 1:
             raise MyCustomException("Error: Doctor not Found")
         return Experience.objects.filter(doctor=doctors[0].id)
@@ -77,7 +94,7 @@ class AwardViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
     def get_queryset(self):
-        doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+        doctors = Doctor.objects.filter(id=self.kwargs["doctor_pk"])
         if doctors.count() < 1:
             raise MyCustomException("Error: Doctor not Found")
         return Award.objects.filter(doctor=doctors[0].id)
@@ -95,7 +112,7 @@ class MembershipViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
     def get_queryset(self):
-        doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+        doctors = Doctor.objects.filter(id=self.kwargs["doctor_pk"])
         if doctors.count() < 1:
             raise MyCustomException("Error: Doctor not Found")
         return Membership.objects.filter(doctor=doctors[0].id)
@@ -113,7 +130,7 @@ class RegistrationViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
     def get_queryset(self):
-        doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+        doctors = Doctor.objects.filter(id=self.kwargs["doctor_pk"])
         if doctors.count() < 1:
             raise MyCustomException("Error: Doctor not Found")
         return Registration.objects.filter(doctor=doctors[0].id)
@@ -131,7 +148,7 @@ class DoctorScheduleViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
     def get_queryset(self):
-        doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+        doctors = Doctor.objects.filter(id=self.kwargs["doctor_pk"])
         if doctors.count() < 1:
             raise MyCustomException("Error: Doctor not Found")
         return DoctorSchedule.objects.filter(doctor=doctors[0].id)
@@ -169,7 +186,7 @@ class TimeSlotViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
     def get_queryset(self):
-        doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+        doctors = Doctor.objects.filter(id=self.kwargs["doctor_pk"])
         if doctors.count() < 1:
             raise MyCustomException("Error: Doctor not Found")
         return TimeSlot.objects.filter(doctor=doctors[0].id)
@@ -187,7 +204,7 @@ class SocialMediaViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerDoctorOrReadOnly]
 
     def get_queryset(self):
-        doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+        doctors = Doctor.objects.filter(id=self.kwargs["doctor_pk"])
         if doctors.count() < 1:
             raise MyCustomException("Error: Doctor not Found")
         return SocialMedia.objects.filter(doctor=doctors[0].id)
@@ -205,7 +222,7 @@ class AppointmentViewSet(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerDoctorOrPatientPOSTOnly]
 
     def get_queryset(self):
-        doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+        doctors = Doctor.objects.filter(id=self.kwargs["doctor_pk"])
         if doctors.count() < 1:
             raise MyCustomException("Error: Doctor not Found")
         return Appointment.objects.filter(doctor=doctors[0].id)
@@ -217,21 +234,23 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             doctor = Doctor.objects.filter(user=user.id)
             if doctor.count() < 1:
                 raise MyCustomException("Error: Doctor does not Exist.")
-            date_time = serializer.validated_data.get('date_of_appointment', None)
+            date_time = serializer.validated_data.get("date_of_appointment", None)
             if date_time is not None:
                 valid_date = validate_appointment_date(doctor[0].id, date_time)
                 if valid_date["validated"] is False:
                     raise MyCustomException(valid_date["message"])
-            serializer.save(doctor=doctor[0], status='WAITING', amount=doctor[0].pricing)
+            serializer.save(
+                doctor=doctor[0], status="WAITING", amount=doctor[0].pricing
+            )
         elif user.role.name == "PATIENT":
             patients = Patient.objects.filter(user=user.id)
             if patients.count() < 1:
                 raise MyCustomException("Error: Patient does not Exist.")
 
-            doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+            doctors = Doctor.objects.filter(id=self.kwargs["doctor_pk"])
             if doctors.count() < 1:
                 raise MyCustomException("Error: Doctor not Found")
-            date_time = serializer.validated_data.get('date_of_appointment', None)
+            date_time = serializer.validated_data.get("date_of_appointment", None)
             if date_time is not None:
                 valid_date = validate_appointment_date(doctors[0].id, date_time)
                 if valid_date["validated"] is False:
@@ -239,11 +258,13 @@ class AppointmentViewSet(viewsets.ModelViewSet):
             serializer.save(
                 patient=patients[0],
                 doctor=doctors[0],
-                status='WAITING',
-                amount=doctors[0].pricing
+                status="WAITING",
+                amount=doctors[0].pricing,
             )
         else:
-            raise MyCustomException("Error: You don't have permissions to create Appointments.")
+            raise MyCustomException(
+                "Error: You don't have permissions to create Appointments."
+            )
 
 
 class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
@@ -252,52 +273,7 @@ class ReviewViewSet(viewsets.ReadOnlyModelViewSet):
     permission_classes = [IsAuthenticated, IsOwnerReviewOrDoctorReadOnly]
 
     def get_queryset(self):
-        doctors = Doctor.objects.filter(id=self.kwargs['doctor_pk'])
+        doctors = Doctor.objects.filter(id=self.kwargs["doctor_pk"])
         if doctors.count() < 1:
             raise MyCustomException("Error: Doctor not Found")
         return AppoinmentReview.objects.filter(appointment__doctor=doctors[0].id)
-
-
-def validate_appointment_date(doctor, date_time):
-    schedules = DoctorSchedule.objects.filter(doctor=doctor)
-    if schedules.count() > 0:
-        # today = dt.date.today()
-        # tomorrow = today + dt.timedelta(days=1)
-        for schdl in schedules:
-            if str(schdl.day).title() == str(f"{date_time:%A}").title():
-                time_slots = schdl.time_slot
-                check = False
-                for time_slot in time_slots.all():
-                    start_hour = int(time_slot.start_time.hour)
-                    end_hour = int(time_slot.end_time.hour)
-                    if int(date_time.hour) >= start_hour:
-                        if int(date_time.hour) < end_hour:
-                            check = True
-                        elif int(date_time.hour) == end_hour:
-                            if date_time.minute >= time_slot.end_time.minute:
-                                check = True
-                    if check:
-                        start_date = dt.datetime(
-                            year=date_time.year, month=date_time.month,
-                            day=date_time.day, hour=time_slot.start_time.hour,
-                            minute=time_slot.start_time.minute
-                        )
-                        end_date = dt.datetime(
-                            year=date_time.year, month=date_time.month,
-                            day=date_time.day, hour=time_slot.end_time.hour,
-                            minute=time_slot.end_time.minute
-                        )
-                        appointments = Appointment.objects.filter(doctor=doctor).exclude(
-                            date_of_appointment__lt=start_date).exclude(
-                            date_of_appointment__gt=end_date
-                        )
-                        if appointments.count() >= time_slot.number_of_appointments:
-                            return {"validated": False, "message": "Timeslot is Fully Booked."}
-                        else:
-                            return {"validated": True, "message": None}
-    else:
-        return {"validated": False, "message": "Doctor has not created a schedule."}
-    return {
-        "validated": False,
-        "message": "Invalid Date: Check the Doctor Appointment Schedule before booking."
-    }
