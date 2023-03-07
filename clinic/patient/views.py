@@ -50,7 +50,7 @@ class ListCreatePatient(generics.ListCreateAPIView):
 class RetrieveUpdateDestroyPatient(generics.RetrieveUpdateDestroyAPIView):
     queryset = Patient.objects.all()
     serializer_class = PatientSerializer
-    permission_classes = [IsOwnerOrDoctorReadOnly]
+    permission_classes = [IsAuthenticated, IsOwnerOrDoctorReadOnly]
 
 
 class PrescriptionViewSet(viewsets.ModelViewSet):

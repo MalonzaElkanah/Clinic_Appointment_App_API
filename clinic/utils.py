@@ -1,3 +1,5 @@
+from django.contrib.auth.models import Group
+
 from clinic.models import DoctorSchedule, Appointment
 
 import datetime as dt
@@ -58,3 +60,16 @@ def validate_appointment_date(doctor, date_time):
         "validated": False,
         "message": "Invalid Date: Check the Doctor Appointment Schedule before booking.",
     }
+
+
+def get_roles(role_name):
+    roles = Group.objects.filter(name=role_name)
+
+    if roles.count() > 0:
+        return roles
+
+    else:
+        role = Group.objects.create(name=role_name)
+        role.save()
+
+        return Group.objects.filter(name=role_name)
