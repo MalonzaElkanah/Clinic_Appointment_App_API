@@ -70,7 +70,7 @@ class SpecialityAPITests(APITestCase):
         url = reverse("speciality_list_create")
         data = {"name": "TestSpeciality"}
 
-        # Test if unautheticated user can create
+        # Test if unautheticated user cannot create
         response = self.client.post(url, data, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(Speciality.objects.count(), 2)
@@ -234,12 +234,12 @@ class AdminInvitesAPITests(APITestCase):
         """
         url = reverse("admin_invites_list_create")
 
-        # Test if unautheticated user can retrieve
+        # Test if unautheticated user can list
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertEqual(response.json().get("results", None), None)
 
-        # Test if non-admin user can retrieve
+        # Test if non-admin user can list
         self.client.login(username="p.user1", password="Pass1234")
         response = self.client.get(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)

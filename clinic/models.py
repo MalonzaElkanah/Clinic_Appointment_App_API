@@ -13,18 +13,19 @@ from mylib.image import scramble
 
 class Patient(models.Model):
     BLOOD_GROUP = (
-        ('A-', 'A-'), ('A+', 'A+'),
-        ('B-', 'B-'), ('B+', 'B+'),
-        ('AB-', 'AB-'), ('AB+', 'AB+'),
-        ('O-', 'O-'), ('O+', 'O+'),
-        ('NS', 'Not Set')
+        ("A-", "A-"),
+        ("A+", "A+"),
+        ("B-", "B-"),
+        ("B+", "B+"),
+        ("AB-", "AB-"),
+        ("AB+", "AB+"),
+        ("O-", "O-"),
+        ("O+", "O+"),
+        ("NS", "Not Set"),
     )
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE)
     blood_group = models.CharField(
-        'Blood Group',
-        max_length=5,
-        default="NS",
-        choices=BLOOD_GROUP
+        "Blood Group", max_length=5, default="NS", choices=BLOOD_GROUP
     )
 
     def __str__(self):
@@ -33,44 +34,46 @@ class Patient(models.Model):
 
 class Doctor(models.Model):
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE)
-    title = models.CharField('Title', max_length=200, default='Dr.')
-    biography = models.CharField('Biography', max_length=1000, blank=True)
-    pricing = models.FloatField('Amount', default=0.00)
-    services = models.CharField('Services', max_length=1000, blank=True)
-    specialization = models.CharField('Specialization', max_length=1000, blank=True)
+    title = models.CharField("Title", max_length=200, default="Dr.")
+    biography = models.CharField("Biography", max_length=1000, blank=True)
+    pricing = models.FloatField("Amount", default=0.00)
+    services = models.CharField("Services", max_length=1000, blank=True)
+    specialization = models.CharField("Specialization", max_length=1000, blank=True)
     speciality = models.ForeignKey(Speciality, on_delete=models.CASCADE)
-    clinic_invites = models.ManyToManyField('Clinic')
+    clinic_invites = models.ManyToManyField("Clinic")
 
     def __str__(self):
-        return "{} {} {}".format(self.title, self.user.first_name, self.user.last_name).title()
+        return "{} {} {}".format(
+            self.title, self.user.first_name, self.user.last_name
+        ).title()
 
 
 class Clinic(models.Model):
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     doctors = models.ManyToManyField(Doctor)
-    name = models.CharField('Name', max_length=100)
+    name = models.CharField("Name", max_length=100)
     phone = models.CharField(max_length=50)
     image = models.ImageField("uploads", upload_to=scramble, null=True, blank=True)
     thumbnail = ImageSpecField(
-        source='image',
+        source="image",
         processors=[ResizeToFit(height=400)],
-        format='JPEG',
-        options={'quality': 80}
+        format="JPEG",
+        options={"quality": 80},
     )
     email = models.EmailField(unique=True)
-    country = models.CharField('Country', max_length=100, null=True, blank=True)
-    county = models.CharField('County', max_length=100, null=True, blank=True)
-    town = models.CharField('Town', max_length=100, null=True, blank=True)
-    street = models.CharField('Street', max_length=200, null=True, blank=True)
-    address = models.CharField('Address', max_length=200, null=True, blank=True)
-    description = models.CharField('Description', max_length=1000, blank=True)
+    country = models.CharField("Country", max_length=100, null=True, blank=True)
+    county = models.CharField("County", max_length=100, null=True, blank=True)
+    town = models.CharField("Town", max_length=100, null=True, blank=True)
+    street = models.CharField("Street", max_length=200, null=True, blank=True)
+    address = models.CharField("Address", max_length=200, null=True, blank=True)
+    description = models.CharField("Description", max_length=1000, blank=True)
 
 
 class Education(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    degree = models.CharField('Degree', max_length=50)
-    institute = models.CharField('College/Institute', max_length=50)
-    date_of_completion = models.DateField('Date of Completion')
+    degree = models.CharField("Degree", max_length=50)
+    institute = models.CharField("College/Institute", max_length=50)
+    date_of_completion = models.DateField("Date of Completion")
 
     def __str__(self):
         return "{}, {}".format(self.degree, self.institute).title()
@@ -78,10 +81,10 @@ class Education(models.Model):
 
 class Experience(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    hospital_name = models.CharField('Hospital/Clinic', max_length=50)
-    start_date = models.DateField('From')
-    end_date = models.DateField('To', blank=True)
-    designation = models.CharField('Designation', max_length=50)
+    hospital_name = models.CharField("Hospital/Clinic", max_length=50)
+    start_date = models.DateField("From")
+    end_date = models.DateField("To", blank=True)
+    designation = models.CharField("Designation", max_length=50)
 
     def __str__(self):
         return "{}, {}".format(self.designation, self.hospital_name).title()
@@ -89,8 +92,8 @@ class Experience(models.Model):
 
 class Award(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    award = models.CharField('Award', max_length=50)
-    date = models.DateField('Date')
+    award = models.CharField("Award", max_length=50)
+    date = models.DateField("Date")
 
     def __str__(self):
         return "{}, {}".format(self.award, self.date).title()
@@ -98,7 +101,7 @@ class Award(models.Model):
 
 class Membership(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    membership = models.CharField('Membership', max_length=50)
+    membership = models.CharField("Membership", max_length=50)
 
     def __str__(self):
         return "{}".format(self.membership).title()
@@ -106,8 +109,8 @@ class Membership(models.Model):
 
 class Registration(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    date = models.DateField('Date')
-    registration = models.CharField('Registration', max_length=50)
+    date = models.DateField("Date")
+    registration = models.CharField("Registration", max_length=50)
 
     def __str__(self):
         return "{} {}".format(self.registration, self.date).title()
@@ -115,24 +118,28 @@ class Registration(models.Model):
 
 class DoctorSchedule(models.Model):
     DAY = (
-        ('Sunday', 'Sunday'), ('Monday', 'Monday'),
-        ('Tuesday', 'Tuesday'), ('Wednesday', 'Wednesday'),
-        ('Thursday', 'Thursday'), ('Friday', 'Friday'),
-        ('Sartuday', 'Sartuday'), ('Holiday', 'Holiday')
+        ("Sunday", "Sunday"),
+        ("Monday", "Monday"),
+        ("Tuesday", "Tuesday"),
+        ("Wednesday", "Wednesday"),
+        ("Thursday", "Thursday"),
+        ("Friday", "Friday"),
+        ("Saturday", "Saturday"),
+        ("Holiday", "Holiday"),
     )
 
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    day = models.CharField('Day', max_length=10, choices=DAY)
-    time_slot = models.ManyToManyField('TimeSlot')
+    day = models.CharField("Day", max_length=10, choices=DAY)
+    time_slot = models.ManyToManyField("TimeSlot")
 
     def __str__(self):
         return "{}".format(self.day).title()
 
 
 class TimeSlot(models.Model):
-    start_time = models.TimeField('Start Time')
-    end_time = models.TimeField('End Time')
-    number_of_appointments = models.IntegerField('Number Of Appointments', default=1)
+    start_time = models.TimeField("Start Time")
+    end_time = models.TimeField("End Time")
+    number_of_appointments = models.IntegerField("Number Of Appointments", default=1)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
 
     def __str__(self):
@@ -141,8 +148,8 @@ class TimeSlot(models.Model):
 
 class SocialMedia(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    name = models.CharField('Name', max_length=30)
-    url = models.URLField('URL', max_length=200)
+    name = models.CharField("Name", max_length=30)
+    url = models.URLField("URL", max_length=200)
 
     def __str__(self):
         return "{}".format(self.name).title()
@@ -151,14 +158,14 @@ class SocialMedia(models.Model):
 class Prescription(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    date = models.DateTimeField('Prescription Date', auto_now_add=True)
-    name = models.CharField('Name', max_length=50)
-    quantity = models.FloatField('Quantity', default=0.0)
-    days = models.FloatField('Prescription Days', default=0.00)
-    morning = models.BooleanField('Morning', default=False)
-    afternoon = models.BooleanField('Afternoon', default=False)
-    evening = models.BooleanField('Evening', default=False)
-    night = models.BooleanField('Night', default=False)
+    date = models.DateTimeField("Prescription Date", auto_now_add=True)
+    name = models.CharField("Name", max_length=50)
+    quantity = models.FloatField("Quantity", default=0.0)
+    days = models.FloatField("Prescription Days", default=0.00)
+    morning = models.BooleanField("Morning", default=False)
+    afternoon = models.BooleanField("Afternoon", default=False)
+    evening = models.BooleanField("Evening", default=False)
+    night = models.BooleanField("Night", default=False)
 
     def __str__(self):
         return "{}".format(self.name)
@@ -183,10 +190,12 @@ class Prescription(models.Model):
 class MedicalRecord(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
-    date_recorded = models.DateField('Record Date')
-    description = models.CharField('Description', max_length=500, blank=True)
-    attachment = models.FileField('Attachment', upload_to='File/Patient/MedicalRecords/', blank=True)
-    date_added = models.DateTimeField('Added Date', auto_now_add=True)
+    date_recorded = models.DateField("Record Date")
+    description = models.CharField("Description", max_length=500, blank=True)
+    attachment = models.FileField(
+        "Attachment", upload_to="File/Patient/MedicalRecords/", blank=True
+    )
+    date_added = models.DateTimeField("Added Date", auto_now_add=True)
 
     def __str__(self):
         return "{}".format(self.description)
@@ -195,48 +204,55 @@ class MedicalRecord(models.Model):
 class FavouriteDoctor(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    fav_date = models.DateTimeField('Date Added', auto_now_add=True)
+    fav_date = models.DateTimeField("Date Added", auto_now_add=True)
 
 
 class Appointment(models.Model):
     STATUS = (
-        ('WAITING', 'Waiting'), ('CONFIRMED', 'Confirmed'),
-        ('RESCHEDULED', 'Rescheduled'), ('CANCELED', 'Canceled'),
-        ('PAID', 'Paid'), ('COMPLETED', 'Completed')
+        ("WAITING", "Waiting"),
+        ("CONFIRMED", "Confirmed"),
+        ("RESCHEDULED", "Rescheduled"),
+        ("CANCELED", "Canceled"),
+        ("PAID", "Paid"),
+        ("COMPLETED", "Completed"),
     )
 
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
-    purpose = models.CharField('Purpose', max_length=50)
-    amount = models.FloatField('Amount', default=0.00, editable=False)
-    status = models.CharField('Status', max_length=20, choices=STATUS)
-    date_created = models.DateTimeField('Appointment Date', auto_now_add=True)
-    date_of_appointment = models.DateTimeField('Date Of Appointment')
-    follow_up_appointment = models.ForeignKey('self', on_delete=models.CASCADE, null=True)
+    purpose = models.CharField("Purpose", max_length=50)
+    amount = models.FloatField("Amount", default=0.00, editable=False)
+    status = models.CharField("Status", max_length=20, choices=STATUS)
+    date_created = models.DateTimeField("Appointment Date", auto_now_add=True)
+    date_of_appointment = models.DateTimeField("Date Of Appointment")
+    follow_up_appointment = models.ForeignKey(
+        "self", on_delete=models.CASCADE, null=True
+    )
 
     def __str__(self):
         return self.purpose
 
     @property
     def is_patient_new(self):
-        appointments = Appointment.objects.filter(doctor=self.doctor.id, patient=self.patient.id)
+        appointments = Appointment.objects.filter(
+            doctor=self.doctor.id, patient=self.patient.id
+        )
         return appointments.count() <= 1
 
 
 class Bill(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
-    name = models.CharField('Name', max_length=50)
-    quantity = models.FloatField('Quantity', default=1.0)
-    vat = models.FloatField('V.A.T', default=0.0)
-    amount = models.FloatField('Amount', default=0.00)
-    paid = models.BooleanField('Paid', default=False)
+    name = models.CharField("Name", max_length=50)
+    quantity = models.FloatField("Quantity", default=1.0)
+    vat = models.FloatField("V.A.T", default=0.0)
+    amount = models.FloatField("Amount", default=0.00)
+    paid = models.BooleanField("Paid", default=False)
 
 
 class Invoice(models.Model):
     bills = models.ManyToManyField(Bill)
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
     # total_amount = models.FloatField('Total Amount', default=0.00)
-    invoice_date = models.DateTimeField('Paid On', auto_now_add=True)
+    invoice_date = models.DateTimeField("Paid On", auto_now_add=True)
 
     @property
     def total_amount(self):
@@ -267,10 +283,10 @@ class Invoice(models.Model):
 
 class AppoinmentReview(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, blank=True)
-    date = models.DateTimeField('Review Date', auto_now_add=True)
-    rate = models.IntegerField('Rate')
-    recommend = models.BooleanField('Recommend', default=False)
-    text = models.CharField('Review Title', max_length=150, blank=True)
+    date = models.DateTimeField("Review Date", auto_now_add=True)
+    rate = models.IntegerField("Rate")
+    recommend = models.BooleanField("Recommend", default=False)
+    text = models.CharField("Review Title", max_length=150, blank=True)
 
     def total_reviews(self):
         query = AppoinmentReview.objects.filter(doctor=self.appointment.doctor.id)
@@ -280,18 +296,18 @@ class AppoinmentReview(models.Model):
 class Reply(models.Model):
     review = models.ForeignKey(AppoinmentReview, on_delete=models.CASCADE)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
-    date = models.DateTimeField('Review Date', auto_now_add=True)
-    text = models.CharField('Review Title', max_length=150)
+    date = models.DateTimeField("Review Date", auto_now_add=True)
+    text = models.CharField("Review Title", max_length=150)
 
 
 class LikedReview(models.Model):
     review = models.ForeignKey(AppoinmentReview, on_delete=models.CASCADE)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
-    recommend = models.BooleanField('Recommend', default=False)
+    recommend = models.BooleanField("Recommend", default=False)
     # review, user, recommend
 
 
 class LikedReply(models.Model):
     reply = models.ForeignKey(Reply, on_delete=models.CASCADE)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
-    recommend = models.BooleanField('Recommend', default=False)
+    recommend = models.BooleanField("Recommend", default=False)

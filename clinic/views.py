@@ -1,5 +1,3 @@
-from django.contrib.auth.models import Group
-
 from rest_framework import generics, status
 from rest_framework.views import APIView
 from rest_framework.reverse import reverse
@@ -7,10 +5,12 @@ from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 
 from client.permissions import IsOwner
+from clinic.permissions import IsOwnerOrReadOnly
 from client.models import MyUser
 from administrator.models import Speciality
 from clinic.models import Clinic, Doctor
 from clinic.serializers import ClinicSerializer, ClinicInviteDoctorSerializer
+from clinic.utils import get_roles
 
 from mylib import token
 from mylib.common import MySendEmail
@@ -31,14 +31,14 @@ class ListCreateClinic(generics.ListCreateAPIView):
         clinic.save()
 
         return Response(
-            self.get_serializer(clinic).data
+            self.get_serializer(clinic).data, status=status.HTTP_201_CREATED
         )
 
 
 class RetrieveUpdateDestroyClinic(generics.RetrieveUpdateDestroyAPIView):
     queryset = Clinic.objects.all()
     serializer_class = ClinicSerializer
-    permission_classes = [IsAuthenticated, IsOwner]
+    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
 
 
 class ClinicInviteDoctor(APIView):
@@ -56,8 +56,7 @@ class ClinicInviteDoctor(APIView):
 
         if clinic is None:
             return Response(
-                {"detail": "Clinic is not found!"},
-                status=status.HTTP_404_NOT_FOUND
+                {"detail": "Clinic is not found!"}, status=status.HTTP_404_NOT_FOUND
             )
 
         serializer = ClinicInviteDoctorSerializer(data=request.data)
@@ -76,30 +75,21 @@ class ClinicInviteDoctor(APIView):
             if doctor.count() > 0:
                 doctor = doctor[0]
             else:
-                doctor = Doctor(
-                    user=user,
-                    speciality=Speciality.objects.all()[0]
-                )
+                doctor = Doctor(user=user, speciality=Speciality.objects.all()[0])
                 doctor.save()
 
         else:
             user = MyUser(phone=phone, email=email)
             user.save()
 
-            doctor = Doctor(
-                user=user,
-                speciality=Speciality.objects.all()[0]
-            )
+            doctor = Doctor(user=user, speciality=Speciality.objects.all()[0])
             doctor.save()
 
         doctor.clinic_invites.add(clinic)
         doctor.save()
 
         try:
-            str_token = token.encode(
-                email,
-                expiration_seconds=(60*60*24*7)
-            )
+            str_token = token.encode(email, expiration_seconds=(60 * 60 * 24 * 7))
 
             message = f"""
             Hey Doc, \n
@@ -113,11 +103,7 @@ class ClinicInviteDoctor(APIView):
 
             Good DAY.
             """
-            MySendEmail(
-                'Clinic Invite',
-                message,
-                [email]
-            )
+            MySendEmail("Clinic Invite", message, [email])
         except Exception as e:
             print(e)
 
@@ -131,149 +117,126 @@ class ClinicInviteDoctor(APIView):
 
 
 class DoctorAcceptInvite(APIView):
-
     def get_object(self, pk):
         try:
             return Clinic.objects.get(pk=pk)
         except Clinic.DoesNotExist:
             return Response(
-                {"detail": "Clinic is not found!"},
-                status=status.HTTP_404_NOT_FOUND
+                {"detail": "Clinic is not found!"}, status=status.HTTP_404_NOT_FOUND
             )
 
     def get(self, request, pk, format=None):
-        str_token = request.query_params.get('token', None)
-
-        if str_token:
-            payload = token.decode(str_token)
-
-            if 'error' in payload:
-                return Response(
-                    {"detail": payload['error']},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-
-            email = payload['data']
-
-            user = MyUser.objects.filter(email=email)
-
-            if user.count() == 0:
-
-                return Response(
-                    {"detail": "User is not found!"},
-                    status=status.HTTP_404_NOT_FOUND
-                )
-
-            user = user[0]
-            doctor = Doctor.objects.filter(user=user.id)
-
-            if doctor.count() == 0:
-
-                return Response(
-                    {"detail": "Doctor is not found!"},
-                    status=status.HTTP_404_NOT_FOUND
-                )
-
-            doctor = doctor[0]
-
-            clinic = self.get_object(pk)
-
-            if clinic in list(doctor.clinic_invites.all()):
-                clinic.doctors.add(doctor)
-                clinic.save()
-                # TODO
-                # Send Notification/Email to clinic owner/admin
-
-                doctor_role = Group.objects.filter(name="DOCTOR").first()
-
-                # Change the user role to doctor
-                if user.role.id != doctor_role.id:
-                    user.role = doctor_role
-                    user.save()
-
-                # Check if its a new user
-                if user.password in ['', None]:
-                    # redirect if to set a new password if a new user
-                    reset_code = randint(111111, 999999)
-
-                    user.reset_code = reset_code
-                    user.save()
-
-                    try:
-                        message = f"""
-                        Hey Doc, \n
-
-                        Thank you for accepting to be one of our doctors. To finish setting
-                        your account, we've sent you the code: {reset_code} to set up your
-                        new account password.\n {reset_code}\n
-
-                        Good DAY.
-                        """
-
-                        MySendEmail(
-                            'Password Reset Code',
-                            message,
-                            [email]
-                        )
-
-                    except Exception as e:
-                        print(e)
-
-                    return Response(
-                        {"detail": """
-                        Invite Accepted.
-                        Code to setup your account has been sent to your email.
-                        """}
-                    )
-
-                return Response(
-                    {"detail": "Invite Accepted. Please login to finish setting your doctor profile"}
-                )
-            else:
-                return Response(
-                    {"detail": "Invite not found!"},
-                    status=status.HTTP_404_NOT_FOUND
-                )
-
-        else:
+        str_token = request.query_params.get("token", None)
+        if str_token is None:
             return Response(
                 {"detail": "Token Arg Required."},
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        payload = token.decode(str_token)
+        if "error" in payload:
+            return Response(
+                {"detail": payload["error"]}, status=status.HTTP_400_BAD_REQUEST
+            )
+
+        user = MyUser.objects.filter(email=payload["data"])
+        if not user.exists():
+
+            return Response(
+                {"detail": "User is not found!"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        user = user.first()
+
+        doctor = Doctor.objects.filter(user=user.id)
+        if not doctor.exists():
+            return Response(
+                {"detail": "Doctor is not found!"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        doctor = doctor.first()
+
+        clinic = self.get_object(pk)
+        if clinic not in list(doctor.clinic_invites.all()):
+            return Response(
+                {"detail": "Invite not found!"}, status=status.HTTP_404_NOT_FOUND
+            )
+
+        clinic.doctors.add(doctor)
+        clinic.save()
+        # TODO
+        # Send Notification/Email to clinic owner/admin
+
+        response_text = self.update_invited_user(user)
+
+        return Response({"detail": response_text})
+
+    def update_invited_user(self, user):
+        # Change the user role to doctor
+        doctor_role = get_roles("DOCTOR").first()
+        if user.role is None:
+            user.role = doctor_role
+        elif user.role.id != doctor_role.id:
+            user.role = doctor_role
+
+        user.save()
+
+        # Check if its a new user
+        if user.password in ["", None]:
+            # redirect if to set a new password if a new user
+            reset_code = randint(111111, 999999)
+
+            user.reset_code = reset_code
+            user.save()
+
+            message = f"""
+            Hey Doc, \n
+
+            Thank you for accepting to be one of our doctors. To finish setting
+            your account, we've sent you the code: {reset_code} to set up your
+            new account password.\n {reset_code}\n
+
+            Good DAY.
+            """
+
+            try:
+                MySendEmail("Password Reset Code", message, [user.email])
+            except Exception as e:
+                print(e)
+
+            return "Invite Accepted. Code to setup your account has been sent to your email."
+
+        return "Invite Accepted. Please login to finish setting your doctor profile."
+
 
 class DoctorRejectInvite(APIView):
-
     def get_object(self, pk):
         try:
             return Clinic.objects.get(pk=pk)
         except Clinic.DoesNotExist:
             return Response(
-                {"detail": "Clinic is not found!"},
-                status=status.HTTP_404_NOT_FOUND
+                {"detail": "Clinic is not found!"}, status=status.HTTP_404_NOT_FOUND
             )
 
     def get(self, request, pk, format=None):
-        str_token = request.query_params.get('token', None)
+        str_token = request.query_params.get("token", None)
 
         if str_token:
             payload = token.decode(str_token)
 
-            if 'error' in payload:
+            if "error" in payload:
                 return Response(
-                    {"detail": payload['error']},
-                    status=status.HTTP_400_BAD_REQUEST
+                    {"detail": payload["error"]}, status=status.HTTP_400_BAD_REQUEST
                 )
 
-            email = payload['data']
+            email = payload["data"]
 
             user = MyUser.objects.filter(email=email)
 
             if user.count() == 0:
 
                 return Response(
-                    {"detail": "User is not found!"},
-                    status=status.HTTP_404_NOT_FOUND
+                    {"detail": "User is not found!"}, status=status.HTTP_404_NOT_FOUND
                 )
 
             user = user[0]
@@ -282,8 +245,7 @@ class DoctorRejectInvite(APIView):
             if doctor.count() == 0:
 
                 return Response(
-                    {"detail": "Doctor is not found!"},
-                    status=status.HTTP_404_NOT_FOUND
+                    {"detail": "Doctor is not found!"}, status=status.HTTP_404_NOT_FOUND
                 )
 
             doctor = doctor[0]
@@ -297,13 +259,16 @@ class DoctorRejectInvite(APIView):
                 # Send Notification/Email to clinic owner/admin
 
                 # Check if its a new user
-                if user.password in ['', None]:
-                    # delete user
+                if user.password in ["", None]:
+                    # delete user and doctor
+                    doctor.delete()
                     user.delete()
+            else:
+                return Response(
+                    {"detail": "Invite not found!"}, status=status.HTTP_404_NOT_FOUND
+                )
 
-            return Response(
-                {"detail": "Invite Rejected!"}
-            )
+            return Response({"detail": "Invite Rejected!"})
 
         else:
             return Response(

@@ -160,8 +160,12 @@ class BillSerializer(serializers.ModelSerializer):
 
 
 class InvoiceSerializer(serializers.ModelSerializer):
-    bills = BillSerializer(read_only=True)
+    bills = BillSerializer(read_only=True, many=True)
 
     class Meta:
         model = Invoice
         fields = "__all__"
+
+
+class AppointmentRescheduleSerializer(serializers.Serializer):
+    date_of_appointment = serializers.DateTimeField(required=True)

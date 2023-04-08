@@ -1,11 +1,12 @@
 from rest_framework.permissions import BasePermission
+from clinic.models import Patient
 
 
-SAFE_METHODS = ['POST', 'HEAD', 'OPTIONS']
+SAFE_METHODS = ["POST", "HEAD", "OPTIONS"]
 
-READ_SAFE_METHODS = ['GET', 'HEAD', 'OPTIONS']
+READ_SAFE_METHODS = ["GET", "HEAD", "OPTIONS"]
 
-ALL_SAFE_METHODS = ['POST', 'HEAD', 'OPTIONS', 'GET']
+ALL_SAFE_METHODS = ["POST", "HEAD", "OPTIONS", "GET"]
 
 
 class IsOwnerDoctorOrReadOnly(BasePermission):
@@ -13,6 +14,7 @@ class IsOwnerDoctorOrReadOnly(BasePermission):
     Object-level permission to only allow doctor-owners of an object to edit it.
     Assumes the model instance has an `doctor.user.id` attribute.
     """
+
     message = "Access Only to the Doctor who created it."
 
     def has_object_permission(self, request, view, obj):
@@ -29,6 +31,7 @@ class IsDoctorOrReadOnly(BasePermission):
     """
     The request is authenticated as a Doctor, or is a read only request.
     """
+
     message = "Doctor only Access."
 
     def has_permission(self, request, view):
@@ -41,6 +44,7 @@ class IsOwnerOrDoctor(BasePermission):
     """
     The request is authenticated as a Doctor or Owner.
     """
+
     message = "Only a Doctor or the Owner can Access."
 
     def has_permission(self, request, view):
@@ -66,6 +70,7 @@ class IsOwnerDoctorOrIsOwnerPatient(BasePermission):
     Permission to only allow doctor-owners/patient-owners of an object to access it.
     Assumes the model instance has an `doctor.user.id` or `patient.user.id` attribute.
     """
+
     message = "Access Only to the Doctor or Patient referred."
 
     def has_permission(self, request, view):
@@ -95,16 +100,22 @@ class IsOwnerPatient(BasePermission):
     Permission to only allow patient-owners of an object or queryset to access it.
     Assumes the model instance has an `patient.user.id` attribute.
     """
-    message = "Access Only Patient Owner."
+
+    message = "Access Only to Owner."
 
     def has_permission(self, request, view):
-        queryset = view.get_queryset()
-        if queryset.count() > 0:
-            for obj in queryset:
-                if obj.patient.user.id == request.user.id:
-                    return True
-        else:
-            return True
+
+        if request.user is not None:
+            queryset = view.get_queryset()
+            if queryset.count() > 0:
+                for obj in queryset:
+                    if obj.patient.user.id == request.user.id:
+                        return True
+
+                return False
+
+            if Patient.objects.filter(user=request.user.id).exists():
+                return True
 
         return False
 
@@ -121,3 +132,33 @@ class IsOwnerOrDoctorReadOnly(BasePermission):
             if request.user.role.name == "DOCTOR":
                 return True
         return obj.user.id == request.user.id
+
+
+class IsOwnerPatientInvoice(BasePermission):
+    """
+    Permission to only allow owners-patient-owners of an object to access it.
+    Assumes the model instance has an `invoice.appointment.patient.user.id` attribute.
+    """
+
+    message = "Access Only to the Owner."
+
+    def has_permission(self, request, view):
+        if request.user is not None:
+            queryset = view.get_queryset()
+            if queryset.count() > 0:
+                for obj in queryset:
+                    if obj.appointment.patient.user.id == request.user.id:
+                        return True
+
+                return False
+
+            if Patient.objects.filter(user=request.user.id).exists():
+                return True
+
+        return False
+
+    def has_object_permission(self, request, view, obj):
+        if obj.appointment.patient.user.id == request.user.id:
+            return True
+
+        return False

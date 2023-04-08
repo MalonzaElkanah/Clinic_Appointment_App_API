@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group
+from django.utils import timezone
 
 from clinic.models import DoctorSchedule, Appointment
 
@@ -11,6 +12,14 @@ def validate_appointment_date(doctor, date_time):
     is inline with doctor schedule dates and
     the timeslot is not fully booked
     """
+
+    if date_time < timezone.make_aware(
+        dt.datetime.now() + dt.timedelta(hours=3), timezone=date_time.tzinfo
+    ):
+        return {
+            "validated": False,
+            "message": "The earliest appointment date and time should be 3 hours from now.",
+        }
 
     schedules = DoctorSchedule.objects.filter(doctor=doctor)
 
@@ -25,13 +34,18 @@ def validate_appointment_date(doctor, date_time):
                     int(date_time.hour) >= start_hour
                     and int(date_time.hour) <= end_hour
                 ):
-                    if date_time.minute <= time_slot.end_time.minute:
+                    if not (
+                        int(date_time.hour) == end_hour
+                        and date_time.minute > time_slot.end_time.minute
+                    ):
+                        # if date_time.minute <= time_slot.end_time.minute:
                         start_date = dt.datetime(
                             year=date_time.year,
                             month=date_time.month,
                             day=date_time.day,
                             hour=time_slot.start_time.hour,
                             minute=time_slot.start_time.minute,
+                            tzinfo=date_time.tzinfo,
                         )
                         end_date = dt.datetime(
                             year=date_time.year,
@@ -39,11 +53,13 @@ def validate_appointment_date(doctor, date_time):
                             day=date_time.day,
                             hour=time_slot.end_time.hour,
                             minute=time_slot.end_time.minute,
+                            tzinfo=date_time.tzinfo,
                         )
                         appointments = (
                             Appointment.objects.filter(doctor=doctor)
                             .exclude(date_of_appointment__lt=start_date)
                             .exclude(date_of_appointment__gt=end_date)
+                            .exclude(status="CANCELED")
                         )
                         if appointments.count() >= time_slot.number_of_appointments:
                             return {

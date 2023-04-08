@@ -511,14 +511,14 @@ class ListCreateRetrieveUpdateDestroyGroupViewTests(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_401_UNAUTHORIZED)
         self.assertTrue(Group.objects.filter(id=role.id).exists())
 
-        # Test if non-admin user can retrieve
+        # Test if non-admin user can delete
         self.client.login(username="p.user1", password="Pass1234")
         response = self.client.delete(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
         self.assertTrue(Group.objects.filter(id=role.id).exists())
         self.client.logout()
 
-        # Test if admin user can retrieve
+        # Test if admin user can delete
         self.client.login(username="adminuser1", password="Pass1234")
         response = self.client.delete(url, format="json")
         self.assertEqual(response.status_code, status.HTTP_204_NO_CONTENT)
