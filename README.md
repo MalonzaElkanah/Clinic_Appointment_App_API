@@ -43,7 +43,7 @@ Built with Django REST Framework
     - List and Detail view of Doctor's Education, Awards, Experience, Membership and Registration by any user
 
 10. Create, List and Detail Patient
-    - Update and Delete Patient by Owner Doctor
+    - Update and Delete Patient by Owner Patient
 11. Book, cancel and request reschedule Appointment with a doctor by Patient
     - Accept, cancel, request reschedule and follow-up appointment by Doctor 
 
@@ -60,9 +60,12 @@ Built with Django REST Framework
 17. Users like reviews and reply
 
 ### Todo
-- Write tests for above features
 - Document apis with Postman
 - JWT Authentication
+- Payment endpoints
+- Create and Send appointment Notifications (Calery)
+- Geo-locate clinic
+- Doctor - Patient chat app
 
 
 ## Installation Guide
@@ -82,11 +85,17 @@ pip install -r requirements.txt
 ```
 
 ## Testing and Running Guide
-To activate the development server run:
+1. To activate the development server run:
 ```bash
 python manage.py runserver
 ```
 At this point, the development server should be accessible at _http://127.0.0.1:8000/_
+
+2. Testing - To run all the tests:
+
+```bash
+python manage.py test
+```
 
 
 ## API Documentation
