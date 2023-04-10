@@ -31,6 +31,9 @@ class Patient(models.Model):
     def __str__(self):
         return "{} {}".format(self.user.first_name, self.user.last_name).title()
 
+    class Meta:
+        ordering = ("id",)
+
 
 class Doctor(models.Model):
     user = models.OneToOneField(MyUser, on_delete=models.CASCADE)
@@ -46,6 +49,9 @@ class Doctor(models.Model):
         return "{} {} {}".format(
             self.title, self.user.first_name, self.user.last_name
         ).title()
+
+    class Meta:
+        ordering = ("id",)
 
 
 class Clinic(models.Model):
@@ -68,6 +74,9 @@ class Clinic(models.Model):
     address = models.CharField("Address", max_length=200, null=True, blank=True)
     description = models.CharField("Description", max_length=1000, blank=True)
 
+    class Meta:
+        ordering = ("id",)
+
 
 class Education(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
@@ -77,6 +86,9 @@ class Education(models.Model):
 
     def __str__(self):
         return "{}, {}".format(self.degree, self.institute).title()
+
+    class Meta:
+        ordering = ("id",)
 
 
 class Experience(models.Model):
@@ -89,6 +101,9 @@ class Experience(models.Model):
     def __str__(self):
         return "{}, {}".format(self.designation, self.hospital_name).title()
 
+    class Meta:
+        ordering = ("id",)
+
 
 class Award(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
@@ -98,6 +113,9 @@ class Award(models.Model):
     def __str__(self):
         return "{}, {}".format(self.award, self.date).title()
 
+    class Meta:
+        ordering = ("id",)
+
 
 class Membership(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
@@ -105,6 +123,9 @@ class Membership(models.Model):
 
     def __str__(self):
         return "{}".format(self.membership).title()
+
+    class Meta:
+        ordering = ("id",)
 
 
 class Registration(models.Model):
@@ -114,6 +135,9 @@ class Registration(models.Model):
 
     def __str__(self):
         return "{} {}".format(self.registration, self.date).title()
+
+    class Meta:
+        ordering = ("id",)
 
 
 class DoctorSchedule(models.Model):
@@ -135,6 +159,9 @@ class DoctorSchedule(models.Model):
     def __str__(self):
         return "{}".format(self.day).title()
 
+    class Meta:
+        ordering = ("id",)
+
 
 class TimeSlot(models.Model):
     start_time = models.TimeField("Start Time")
@@ -145,6 +172,9 @@ class TimeSlot(models.Model):
     def __str__(self):
         return "{} - {}".format(self.start_time, self.end_time).title()
 
+    class Meta:
+        ordering = ("id",)
+
 
 class SocialMedia(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
@@ -153,6 +183,9 @@ class SocialMedia(models.Model):
 
     def __str__(self):
         return "{}".format(self.name).title()
+
+    class Meta:
+        ordering = ("id",)
 
 
 class Prescription(models.Model):
@@ -186,6 +219,9 @@ class Prescription(models.Model):
         end_date = self.date + duration
         return end_date
 
+    class Meta:
+        ordering = ("id",)
+
 
 class MedicalRecord(models.Model):
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
@@ -200,11 +236,17 @@ class MedicalRecord(models.Model):
     def __str__(self):
         return "{}".format(self.description)
 
+    class Meta:
+        ordering = ("id",)
+
 
 class FavouriteDoctor(models.Model):
     doctor = models.ForeignKey(Doctor, on_delete=models.CASCADE)
     patient = models.ForeignKey(Patient, on_delete=models.CASCADE)
     fav_date = models.DateTimeField("Date Added", auto_now_add=True)
+
+    class Meta:
+        ordering = ("id",)
 
 
 class Appointment(models.Model):
@@ -238,6 +280,9 @@ class Appointment(models.Model):
         )
         return appointments.count() <= 1
 
+    class Meta:
+        ordering = ("id",)
+
 
 class Bill(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE)
@@ -246,6 +291,9 @@ class Bill(models.Model):
     vat = models.FloatField("V.A.T", default=0.0)
     amount = models.FloatField("Amount", default=0.00)
     paid = models.BooleanField("Paid", default=False)
+
+    class Meta:
+        ordering = ("id",)
 
 
 class Invoice(models.Model):
@@ -280,6 +328,9 @@ class Invoice(models.Model):
                 total_amount += bill.amount
         return total_amount
 
+    class Meta:
+        ordering = ("id",)
+
 
 class AppoinmentReview(models.Model):
     appointment = models.ForeignKey(Appointment, on_delete=models.CASCADE, blank=True)
@@ -292,6 +343,9 @@ class AppoinmentReview(models.Model):
         query = AppoinmentReview.objects.filter(doctor=self.appointment.doctor.id)
         return len(query)
 
+    class Meta:
+        ordering = ("id",)
+
 
 class Reply(models.Model):
     review = models.ForeignKey(AppoinmentReview, on_delete=models.CASCADE)
@@ -299,15 +353,23 @@ class Reply(models.Model):
     date = models.DateTimeField("Review Date", auto_now_add=True)
     text = models.CharField("Review Title", max_length=150)
 
+    class Meta:
+        ordering = ("id",)
+
 
 class LikedReview(models.Model):
     review = models.ForeignKey(AppoinmentReview, on_delete=models.CASCADE)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     recommend = models.BooleanField("Recommend", default=False)
-    # review, user, recommend
+
+    class Meta:
+        ordering = ("id",)
 
 
 class LikedReply(models.Model):
     reply = models.ForeignKey(Reply, on_delete=models.CASCADE)
     user = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     recommend = models.BooleanField("Recommend", default=False)
+
+    class Meta:
+        ordering = ("id",)

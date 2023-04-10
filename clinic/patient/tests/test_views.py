@@ -1359,7 +1359,7 @@ class AppointmentViewTests(APITestCase):
             doctor=doctor,
             start_time=dt.time(hour=9, minute=30),
             end_time=dt.time(hour=10, minute=30),
-            number_of_appointments=1,
+            number_of_appointments=3,
         )
         for day in DoctorSchedule.DAY:
             schedule = DoctorSchedule.objects.create(doctor=doctor, day=day[0])

@@ -2136,7 +2136,6 @@ class AppointmentViewTests(APITestCase):
         # Test if patient can create models
         self.client.login(username=patient.user.username, password="Pass1234")
         response = self.client.post(url, obj_data, format="json")
-        print(f"\n[------- create Appointments: {response.json()} ---------]\n")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Appointment.objects.count(), obj_count + 1)
         self.client.logout()
@@ -2851,7 +2850,6 @@ class AppoinmentReviewViewTests(APITestCase):
         obj_data.update({"user": user.id})
         self.client.login(username=user.username, password="Pass1234")
         response = self.client.post(url, obj_data, format="json")
-        print(f"\n[------- like review: {response.json()} ---------]\n")
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(LikedReview.objects.count(), obj_count + 1)
         self.assertTrue(LikedReview.objects.last().recommend)

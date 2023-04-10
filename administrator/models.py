@@ -5,6 +5,9 @@ from client.models import MyUser
 
 
 class Speciality(models.Model):
+    class Meta:
+        ordering = ["id"]
+
     name = models.CharField("Name", max_length=100, unique=True)
 
     def __str__(self):
@@ -12,6 +15,9 @@ class Speciality(models.Model):
 
 
 class AdminInvite(models.Model):
+    class Meta:
+        ordering = ["id"]
+
     invite_by = models.ForeignKey(MyUser, on_delete=models.CASCADE)
     phone_number = models.CharField(max_length=20)
     email = models.EmailField(unique=True)
